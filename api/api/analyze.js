@@ -20,11 +20,11 @@ export default async function handler(req, res) {
         role: "user",
         content: [
           { type: "image", source: { type: "base64", media_type: mediaType || "image/jpeg", data: image } },
-          { type: "text", text: `Analyse cette image. Est-ce un ticket ou bon de commande Uber Eats visible et lisible ?
+          { type: "text", text: `Analyse cette image. Cherche tout texte visible : nom de personne, numéro de commande, référence, code. Même si c'est partiel ou flou, essaie d'extraire quelque chose.
 Réponds UNIQUEMENT en JSON valide sans markdown :
-{"found": true/false, "name": "nom complet du client", "code": "numéro de commande"}
-Si pas de ticket lisible : {"found": false, "name": "Inconnu", "code": "Inconnu"}
-Ne génère jamais de données inventées.` }
+{"found": true/false, "name": "nom trouvé ou Inconnu", "code": "code ou numéro trouvé ou Inconnu"}
+Si tu vois du texte mais pas clairement un ticket Uber, essaie quand même d'extraire un nom et un code.
+found doit être true dès que tu vois du texte lisible dans l'image.` }
         ]
       }]
     })
