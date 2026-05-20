@@ -277,26 +277,10 @@ function startScanLoop() {
 async function analyzeTicket(b64) {
   const r = await fetch("/api/analyze", {
     method: "POST",
-    headers: { "Content-Type": "application/json", "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({
-      model: "claude-opus-4-5",
-      max_tokens: 300,
-      messages: [{
-        role: "user",
-        content: [
-          { type: "image", source: { type: "base64", media_type: "image/jpeg", data: b64 } },
-          { type: "text", text: `Analyse cette image. Est-ce un ticket ou bon de commande Uber Eats visible et lisible ?
-Réponds UNIQUEMENT en JSON valide sans markdown :
-{"found": true/false, "name": "nom complet du client", "code": "numéro de commande"}
-Si pas de ticket lisible : {"found": false, "name": "Inconnu", "code": "Inconnu"}
-Ne génère jamais de données inventées.` }
-        ]
-      }]
-    })
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ image: b64, mediaType: "image/jpeg" })
   });
-  const data = await r.json();
-  const text = (data.content || []).find(b => b.type === "text")?.text || "";
-  return JSON.parse(text.replace(/```json|```/g, "").trim());
+  return r.json();
 }
 
 // ADMIN
