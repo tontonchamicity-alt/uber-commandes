@@ -1,1 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Borne Scan Commandes Uber</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #111; color: white; min-height: 100vh; }
+    #login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a2e, #0f3460); }
+    .login-box { background: white; color: #1a1a2e; border-radius: 20px; padding: 40px; width: 340px; max-width: 90vw; box-shadow: 0 20px 60px rgba(0,0,0,0.5); text-align: center; }
+    .login-box h2 { margin: 10px 0 6px; font-size: 22px; }
+    .login-box p { color: #888; font-size: 13px; margin-bottom: 24px; }
+    .login-box input { width: 100%; padding: 12px 14px; border-radius: 10px; border: 2px solid #e0e0e0; font-size: 15px; outline: none; margin-bottom: 8px; }
+    .btn-green { background: #06C167; color: white; border: none; border-radius: 12px; padding: 13px 20px; font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 6px; }
+    .btn-red { background: #ef4444; color: white; border: none; border-radius: 12px; padding: 13px 20px; font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 6px; }
+    .err { color: #e53935; font-size: 13px; margin-top: 6px; }
 
+    /* SCAN MODE */
+    #scan-screen { display: none; flex-direction: column; min-height: 100vh; }
+    #scan-header { background: #1a1a2e; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+    #scan-header .title { font-weight: 700; font-size: 17px; }
+    #scan-header .sub { font-size: 12px; opacity: 0.7; }
+    #cam-wrap { position: relative; width: 100%; max-width: 700px; margin: 0 auto; flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    #video { width: 100%; border-radius: 16px; display: block; background: #000; }
+    #scan-rect { position: absolute; border: 3px solid #ef4444; border-radius: 8px; width: 75%; height: 45%; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; box-shadow: 0 0 0 9999px rgba(0,0,0,0.45); }
+    #scan-rect::before, #scan-rect::after { content: ''; position: absolute; width: 24px; height: 24px; border-color: #ef4444; border-style: solid; }
+    #scan-rect::before { top: -3px; left: -3px; border-width: 4px 0 0 4px; }
+    #scan-rect::after { bottom: -3px; right: -3px; border-width: 0 4px 4px 0; }
+    #scan-label { position: absolute; top: calc(50% - 23%); left: 50%; transform: translateX(-50%); background: #ef4444; color: white; font-size: 13px; font-weight: 700; padding: 4px 14px; border-radius: 20px; white-space: nowrap; }
+    #scan-status { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 8px 20px; border-radius: 20px; white-space: nowrap; }
+
+    /* RESULT TOAST */
+    #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #06C167; color: white; padding: 14px 28px; border-radius: 16px; font-size: 15px; font-weight: 700; display: none; z-index: 999; box-shadow: 0 8px 30px rgba(0,0,0,0.4); text-align: center; min-width: 260px; }
+    #toast.error { background: #ef4444; }
+
+    /* ADMIN */
+    #admin-screen { display: none; flex-direction: column; min-height: 100vh; background: #f0f2f5; color: #1a1a2e; }
+    .admin-header { background: #1a1a2e; color: white; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .stats { display: flex; gap: 14px; padding: 20px 20px 0; flex-wrap: wrap; }
+    .stat { background: white; border-radius: 14px; padding: 14px 18px; flex: 1 1 120px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .stat .val { font-size: 26px; font-weight: 700; color: #1a1a2e; margin: 4px 0 2px; }
+    .stat .lbl { font-size: 12px; color: #888; }
+    .filters { display: flex; gap: 10px; padding: 14px 20px; flex-wrap: wrap; }
+    .filters input { flex: 1 1 160px; padding: 10px 14px; border-radius: 10px; border: 2px solid #e0e0e0; font-size: 14px; outline: none; }
+    .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); padding: 0 20px 24px; }
+    .order-card { background: white; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.07); cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s; }
+    .order-card:hover { border-color: #06C167; }
+    .card-img { height: 150px; background: #f0f0f0; overflow: hidden; position: relative; }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .card-img .no-img { height: 100%; display: flex; align-items: center; justify-content: center; color: #ccc; flex-direction: column; font-size: 13px; }
+    .card-tag { position: absolute; top: 8px; right: 8px; background: #06C167; color: white; border-radius: 20px; padding: 2px 10px; font-size: 11px; font-weight: 700; }
+    .card-tag.contested { background: #ef4444; }
+    .card-body { padding: 12px 14px; }
+    .card-name { font-weight: 700; font-size: 15px; margin-bottom: 3px; }
+    .card-code { font-family: monospace; color: #06C167; font-size: 13px; margin-bottom: 6px; }
+    .card-meta { display: flex; justify-content: space-between; color: #999; font-size: 11px; }
+    .empty { text-align: center; padding: 50px; color: #aaa; }
+    .empty div { font-size: 48px; margin-bottom: 10px; }
+
+    /* MODAL */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
+    .modal { background: white; border-radius: 20px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; color: #1a1a2e; }
+    .modal-hdr { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #f0f0f0; }
+    .modal-hdr h3 { margin: 0; }
+    .modal-body { padding: 20px; }
+    .detail-row { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f5f5f5; align-items: flex-start; }
+    .detail-row .icon { font-size: 20px; }
+    .detail-row .lbl { font-size: 12px; color: #999; }
+    .detail-row .val { font-weight: 600; font-size: 15px; }
+    .contest-section { background: #fef2f2; border-radius: 12px; padding: 16px; margin-top: 14px; }
+    .contest-section h4 { color: #ef4444; margin-bottom: 8px; }
+    .contest-section p { font-size: 13px; color: #666; margin-bottom: 10px; }
+    .contest-section textarea { width: 100%; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; font-size: 13px; resize: vertical; min-height: 130px; font-family: inherit; }
+    .btn-close { background: #f0f0f0; border: none; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 18px; }
+    .btn-copy { background: #1a1a2e; color: white; border: none; border-radius: 8px; padding: 10px 16px; cursor: pointer; font-size: 14px; width: 100%; margin-top: 8px; font-weight: 600; }
+    canvas { display: none; }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div style="font-size:52px">🛵</div>
+    <h2>Suivi Commandes Uber</h2>
+    <p>Mode borne de scan ou espace admin</p>
+    <input id="login-inp" type="text" placeholder="Prénom ou code admin" />
+    <div id="login-err" class="err"></div>
+    <button class="btn-green" onclick="doLogin()">Connexion</button>
+  </div>
+</div>
+
+<!-- SCAN -->
+<div id="scan-screen">
+  <div id="scan-header">
+    <div>
+      <div class="title">📷 Borne de Scan — <span id="scan-user"></span></div>
+      <div class="sub">Placez le ticket dans le cadre rouge</div>
+    </div>
+    <button style="background:rgba(255,255,255,0.15);border:none;color:white;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px" onclick="logout()">Déconnexion</button>
+  </div>
+  <div id="cam-wrap">
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas"></canvas>
+    <div id="scan-rect">
+      <span id="scan-label">📦 Placez le ticket ici</span>
+    </div>
+    <div id="scan-status">⏳ Initialisation de la caméra…</div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin-screen">
+  <div class="admin-header">
+    <div>
+      <div style="font-weight:700;font-size:18px">🛵 Admin — Suivi Commandes</div>
+      <div style="font-size:13px;opacity:0.7" id="admin-count">0 commande(s)</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button style="background:rgba(255,255,255,0.15);border:none;color:white;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px" onclick="loadOrders()">🔄</button>
+      <button style="background:rgba(255,255,255,0.15);border:none;color:white;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px" onclick="logout()">Déconnexion</button>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div style="font-size:22px">📦</div><div class="val" id="stat-total">0</div><div class="lbl">Total</div></div>
+    <div class="stat"><div style="font-size:22px">📅</div><div class="val" id="stat-today">0</div><div class="lbl">Aujourd'hui</div></div>
+    <div class="stat"><div style="font-size:22px">⚠️</div><div class="val" id="stat-contested">0</div><div class="lbl">Contestées</div></div>
+  </div>
+  <div class="filters">
+    <input id="search-inp" type="text" placeholder="🔍 Nom ou code…" oninput="renderOrders()" />
+    <input id="date-inp" type="date" oninput="renderOrders()" />
+  </div>
+  <div class="grid" id="orders-grid"></div>
+</div>
+
+<div id="toast"></div>
+<div id="modal-root"></div>
+
+<script>
+const SUPABASE_URL = "https://trwjgmeshrrqiqoibzoz.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyd2pnbWVzaHJycWlxb2liem96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyOTE5MjIsImV4cCI6MjA5NDg2NzkyMn0.WEg_09BtpfkYWcHjiY9D7ApslWxB6HEYRFnd1AQdPNo";
+const ANTHROPIC_KEY = "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";
+const ADMIN_CODE = "admin123";
+
+const dbH = { "Content-Type": "application/json", "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY };
+
+let role = null, staffName = "", orders = [], scanInterval = null, scanning = false, lastScanTime = 0;
+
+// LOGIN
+document.getElementById("login-inp").addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+function doLogin() {
+  const v = document.getElementById("login-inp").value.trim();
+  if (v === ADMIN_CODE) { role = "admin"; showAdmin(); }
+  else if (v.length >= 2) { role = "staff"; staffName = v; showScan(); }
+  else { document.getElementById("login-err").textContent = "Entrez votre prénom ou le code admin."; }
+}
+function logout() {
+  stopScan();
+  role = null; staffName = "";
+  document.getElementById("scan-screen").style.display = "none";
+  document.getElementById("admin-screen").style.display = "none";
+  document.getElementById("login-screen").style.display = "flex";
+  document.getElementById("login-inp").value = "";
+}
+
+// SUPABASE
+async function dbInsert(order) {
+  const r = await fetch(SUPABASE_URL + "/rest/v1/orders", { method: "POST", headers: { ...dbH, "Prefer": "return=representation" }, body: JSON.stringify(order) });
+  return r.json();
+}
+async function dbGetOrders() {
+  const r = await fetch(SUPABASE_URL + "/rest/v1/orders?order=date.desc", { headers: dbH });
+  return r.json();
+}
+async function dbUpdate(id, data) {
+  await fetch(SUPABASE_URL + "/rest/v1/orders?id=eq." + id, { method: "PATCH", headers: dbH, body: JSON.stringify(data) });
+}
+
+// TOAST
+function showToast(msg, isErr = false) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = isErr ? "error" : "";
+  t.style.display = "block";
+  setTimeout(() => t.style.display = "none", 3500);
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString("fr-FR") + " à " + d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+}
+
+// SCAN MODE
+async function showScan() {
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("scan-screen").style.display = "flex";
+  document.getElementById("scan-user").textContent = staffName;
+  await startCamera();
+}
+
+async function startCamera() {
+  const video = document.getElementById("video");
+  const status = document.getElementById("scan-status");
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } } });
+    video.srcObject = stream;
+    video.onloadedmetadata = () => {
+      video.play();
+      status.textContent = "✅ Caméra active — scan automatique toutes les 4s";
+      startScanLoop();
+    };
+  } catch (e) {
+    status.textContent = "❌ Caméra inaccessible : " + e.message;
+  }
+}
+
+function stopScan() {
+  if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
+  const video = document.getElementById("video");
+  if (video.srcObject) { video.srcObject.getTracks().forEach(t => t.stop()); video.srcObject = null; }
+}
+
+function captureFrame() {
+  const video = document.getElementById("video");
+  const canvas = document.getElementById("canvas");
+  if (video.readyState < 2) return null;
+  // Capture only the center zone (the red rectangle area)
+  const vw = video.videoWidth, vh = video.videoHeight;
+  const rw = vw * 0.75, rh = vh * 0.45;
+  const rx = (vw - rw) / 2, ry = (vh - rh) / 2;
+  canvas.width = rw; canvas.height = rh;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(video, rx, ry, rw, rh, 0, 0, rw, rh);
+  return canvas.toDataURL("image/jpeg", 0.85).split(",")[1];
+}
+
+function captureFullFrame() {
+  const video = document.getElementById("video");
+  const canvas = document.getElementById("canvas");
+  if (video.readyState < 2) return null;
+  canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+  canvas.getContext("2d").drawImage(video, 0, 0);
+  return canvas.toDataURL("image/jpeg", 0.85);
+}
+
+function startScanLoop() {
+  scanInterval = setInterval(async () => {
+    if (scanning) return;
+    const now = Date.now();
+    if (now - lastScanTime < 4000) return;
+    const b64 = captureFrame();
+    if (!b64) return;
+    scanning = true;
+    const status = document.getElementById("scan-status");
+    status.textContent = "🔍 Analyse du ticket en cours…";
+    try {
+      const result = await analyzeTicket(b64);
+      if (result && result.found && result.name !== "Inconnu" && result.code !== "Inconnu") {
+        lastScanTime = now + 6000; // pause 6s after success
+        const fullImg = captureFullFrame();
+        await dbInsert({ name: result.name, code: result.code, date: new Date().toISOString(), employee: staffName, image_base64: fullImg, contested: false });
+        showToast("✅ Commande enregistrée !\n" + result.name + " — " + result.code);
+        status.textContent = "✅ Enregistré ! Prochain scan dans 6s…";
+        setTimeout(() => { status.textContent = "✅ Caméra active — scan automatique toutes les 4s"; }, 6000);
+      } else {
+        status.textContent = "⏳ Aucun ticket détecté — nouvelle tentative…";
+      }
+    } catch(e) {
+      status.textContent = "⚠️ Erreur d'analyse — nouvelle tentative…";
+    }
+    lastScanTime = now;
+    scanning = false;
+  }, 1000);
+}
+
+async function analyzeTicket(b64) {
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01" },
+    body: JSON.stringify({
+      model: "claude-opus-4-5",
+      max_tokens: 300,
+      messages: [{
+        role: "user",
+        content: [
+          { type: "image", source: { type: "base64", media_type: "image/jpeg", data: b64 } },
+          { type: "text", text: `Analyse cette image. Est-ce un ticket ou bon de commande Uber Eats visible et lisible ?
+Réponds UNIQUEMENT en JSON valide sans markdown :
+{"found": true/false, "name": "nom complet du client", "code": "numéro de commande"}
+Si pas de ticket lisible : {"found": false, "name": "Inconnu", "code": "Inconnu"}
+Ne génère jamais de données inventées.` }
+        ]
+      }]
+    })
+  });
+  const data = await r.json();
+  const text = (data.content || []).find(b => b.type === "text")?.text || "";
+  return JSON.parse(text.replace(/```json|```/g, "").trim());
+}
+
+// ADMIN
+async function showAdmin() {
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("admin-screen").style.display = "flex";
+  await loadOrders();
+}
+
+async function loadOrders() {
+  const data = await dbGetOrders();
+  orders = Array.isArray(data) ? data : [];
+  updateStats();
+  renderOrders();
+}
+
+function updateStats() {
+  const today = new Date().toISOString().slice(0, 10);
+  document.getElementById("stat-total").textContent = orders.length;
+  document.getElementById("stat-today").textContent = orders.filter(o => (o.date||"").startsWith(today)).length;
+  document.getElementById("stat-contested").textContent = orders.filter(o => o.contested).length;
+  document.getElementById("admin-count").textContent = orders.length + " commande(s)";
+}
+
+function renderOrders() {
+  const q = document.getElementById("search-inp").value.toLowerCase();
+  const d = document.getElementById("date-inp").value;
+  const filtered = orders.filter(o => {
+    const ms = !q || (o.name||"").toLowerCase().includes(q) || (o.code||"").toLowerCase().includes(q);
+    const md = !d || (o.date||"").startsWith(d);
+    return ms && md;
+  });
+  const grid = document.getElementById("orders-grid");
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="empty"><div>📭</div><p>' + (orders.length === 0 ? "Aucune commande enregistrée." : "Aucune commande trouvée.") + '</p></div>';
+    return;
+  }
+  grid.innerHTML = "";
+  filtered.forEach(o => {
+    const card = document.createElement("div");
+    card.className = "order-card";
+    card.innerHTML = `
+      <div class="card-img">
+        ${o.image_base64 ? `<img src="${o.image_base64}" alt="ticket" />` : '<div class="no-img"><span style="font-size:32px">📷</span><span>Pas de photo</span></div>'}
+        <span class="card-tag ${o.contested ? 'contested' : ''}">${o.contested ? '⚠️ Contestée' : '✅ OK'}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-name">${o.name || '—'}</div>
+        <div class="card-code">${o.code || '—'}</div>
+        <div class="card-meta">
+          <span>📅 ${formatDate(o.date)}</span>
+          <span>👤 ${o.employee || '—'}</span>
+        </div>
+      </div>`;
+    card.onclick = () => openModal(o);
+    grid.appendChild(card);
+  });
+}
+
+function openModal(o) {
+  const root = document.getElementById("modal-root");
+  const contestMsg = o.contest_message || `Objet : Contestation de remboursement — Commande ${o.code}
+
+Madame, Monsieur,
+
+Je conteste le remboursement appliqué à la commande suivante :
+
+• Nom du client : ${o.name}
+• Code de commande : ${o.code}
+• Date : ${formatDate(o.date)}
+• Prise en charge par : ${o.employee}
+
+Nous disposons d'une photo du ticket au moment du scan, attestant que la commande a bien été préparée et remise conformément à la commande passée.
+
+Nous vous demandons de réexaminer ce remboursement.
+
+Cordialement, La direction`;
+
+  root.innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <div class="modal-hdr">
+          <h3>Détail commande</h3>
+          <button class="btn-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          ${o.image_base64 ? `<img src="${o.image_base64}" style="width:100%;border-radius:12px;margin-bottom:16px;max-height:260px;object-fit:contain;background:#f0f0f0" />` : '<div style="height:100px;background:#f0f0f0;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#bbb;margin-bottom:16px">Pas de photo</div>'}
+          <div class="detail-row"><span class="icon">👤</span><div><div class="lbl">Nom client</div><div class="val">${o.name||'—'}</div></div></div>
+          <div class="detail-row"><span class="icon">🔢</span><div><div class="lbl">Code commande</div><div class="val" style="font-family:monospace;color:#06C167">${o.code||'—'}</div></div></div>
+          <div class="detail-row"><span class="icon">📅</span><div><div class="lbl">Date & heure</div><div class="val">${formatDate(o.date)}</div></div></div>
+          <div class="detail-row"><span class="icon">🧑‍💼</span><div><div class="lbl">Scanné par</div><div class="val">${o.employee||'—'}</div></div></div>
+          <div class="contest-section">
+            <h4>⚠️ Contester un remboursement</h4>
+            <p>Copiez ce message dans Uber Eats Manager pour contester.</p>
+            <textarea id="contest-ta">${contestMsg}</textarea>
+            <button class="btn-copy" onclick="copyContest('${o.id}')">📋 Copier & marquer comme contestée</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function copyContest(id) {
+  const msg = document.getElementById("contest-ta").value;
+  try { await navigator.clipboard.writeText(msg); } catch(e) {}
+  await dbUpdate(id, { contested: true, contest_message: msg });
+  orders = orders.map(o => o.id == id ? { ...o, contested: true, contest_message: msg } : o);
+  updateStats(); renderOrders();
+  showToast("✅ Message copié ! Collez-le dans Uber Eats Manager.");
+  closeModal();
+}
+
+function closeModal() { document.getElementById("modal-root").innerHTML = ""; }
+</script>
+</body>
+</html>
