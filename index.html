@@ -154,7 +154,7 @@ async function dbInsert(order) {
   return r.json();
 }
 async function dbGetOrders() {
-  const r = await fetch(SUPABASE_URL + "/rest/v1/orders?order=date.desc", { headers: dbH });
+  const r = await fetch(SUPABASE_URL + "/rest/v1/orders?order=date.desc&select=id,name,code,date,employee,contested,contest_message,image_base64", { headers: dbH });
   return r.json();
 }
 async function dbUpdate(id, data) {
@@ -332,9 +332,16 @@ async function showAdmin() {
 }
 
 async function loadOrders() {
-  const data = await dbGetOrders();
-  orders = Array.isArray(data) ? data : [];
-  updateStats(); renderOrders();
+  try {
+    document.getElementById("admin-count").textContent = "Chargement…";
+    const data = await dbGetOrders();
+    orders = Array.isArray(data) ? data : [];
+    updateStats();
+    renderOrders();
+  } catch(e) {
+    document.getElementById("admin-count").textContent = "Erreur de chargement";
+    console.error(e);
+  }
 }
 
 function updateStats() {
@@ -412,6 +419,7 @@ Cordialement, La direction`;
           <div class="detail-row"><span class="icon">🔢</span><div><div class="lbl">Code commande</div><div class="val" style="font-family:monospace;color:#06C167">${o.code||'—'}</div></div></div>
           <div class="detail-row"><span class="icon">📅</span><div><div class="lbl">Date & heure</div><div class="val">${formatDate(o.date)}</div></div></div>
           <div class="detail-row"><span class="icon">🧑‍💼</span><div><div class="lbl">Scanné par</div><div class="val">${o.employee||'—'}</div></div></div>
+          <button onclick="downloadImage('${o.image_base64}', '${o.name} - ${o.code}')" style="background:#1a1a2e;color:white;border:none;border-radius:8px;padding:10px 16px;cursor:pointer;font-size:14px;width:100%;margin-bottom:10px;font-weight:600">📥 Télécharger la photo</button>
           <div class="contest-section">
             <h4>⚠️ Contester un remboursement</h4>
             <p>Copiez ce message dans Uber Eats Manager pour contester.</p>
@@ -431,6 +439,13 @@ async function copyContest(id) {
   updateStats(); renderOrders();
   showToast("✅ Message copié ! Collez-le dans Uber Eats Manager.");
   closeModal();
+}
+
+function downloadImage(src, filename) {
+  const a = document.createElement("a");
+  a.href = src;
+  a.download = filename.replace(/[^a-zA-Z0-9 \-]/g, "") + ".jpg";
+  a.click();
 }
 
 function closeModal() { document.getElementById("modal-root").innerHTML = ""; }
