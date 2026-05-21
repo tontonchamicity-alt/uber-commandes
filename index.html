@@ -199,6 +199,8 @@ async function showScan() {
   await startCamera();
 }
 
+let commandPhotoData = null; // stocke la photo de la commande
+
 async function startCamera() {
   const video = document.getElementById("video");
   const status = document.getElementById("scan-status");
@@ -207,12 +209,29 @@ async function startCamera() {
     video.srcObject = stream;
     video.onloadedmetadata = () => {
       video.play();
-      status.textContent = "✅ Caméra active — scan automatique toutes les 4s";
-      startScanLoop();
+      status.textContent = "📦 Étape 1 — Photographiez la commande (sac/plats)";
+      showStep1();
     };
   } catch (e) {
     status.textContent = "❌ Caméra inaccessible : " + e.message;
   }
+}
+
+function showStep1() {
+  // Affiche bouton pour prendre photo de la commande
+  const existing = document.getElementById("step-btn");
+  if (existing) existing.remove();
+  const btn = document.createElement("button");
+  btn.id = "step-btn";
+  btn.textContent = "📦 Photographier la commande";
+  btn.style.cssText = "position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#06C167;color:white;border:none;border-radius:16px;padding:16px 28px;font-size:16px;font-weight:700;cursor:pointer;z-index:50;box-shadow:0 4px 20px rgba(0,0,0,0.3)";
+  btn.onclick = () => {
+    commandPhotoData = captureFullFrame();
+    document.getElementById("scan-status").textContent = "✅ Photo prise ! Étape 2 — Placez le ticket dans le cadre rouge";
+    btn.remove();
+    startScanLoop();
+  };
+  document.getElementById("scan-screen").appendChild(btn);
 }
 
 function stopScan() {
@@ -258,8 +277,9 @@ function startScanLoop() {
       const result = await analyzeTicket(b64);
       if (result && result.found && result.name !== "Inconnu" && result.code !== "Inconnu") {
         lastScanTime = now + 6000; // pause 6s after success
-        const fullImg = captureFullFrame();
-        await dbInsert({ name: result.name, code: result.code, date: new Date().toISOString(), employee: staffName, image_base64: fullImg, contested: false });
+        await dbInsert({ name: result.name, code: result.code, date: new Date().toISOString(), employee: staffName, image_base64: commandPhotoData, contested: false });
+        commandPhotoData = null;
+        setTimeout(() => showStep1(), 6000);
         showToast("✅ Commande enregistrée !\n" + result.name + " — " + result.code);
         status.textContent = "✅ Enregistré ! Prochain scan dans 6s…";
         setTimeout(() => { status.textContent = "✅ Caméra active — scan automatique toutes les 4s"; }, 6000);
