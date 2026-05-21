@@ -105,6 +105,7 @@
     </div>
     <div style="display:flex;gap:8px">
       <button style="background:rgba(255,255,255,0.15);border:none;color:white;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px" onclick="loadOrders()">🔄</button>
+      <button style="background:#ef4444;border:none;color:white;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px" onclick="deleteAllConfirm()">🗑️ Tout supprimer</button>
       <button style="background:rgba(255,255,255,0.15);border:none;color:white;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px" onclick="logout()">Déconnexion</button>
     </div>
   </div>
@@ -156,6 +157,17 @@ async function dbInsert(order) {
 async function dbGetOrders() {
   const r = await fetch(SUPABASE_URL + "/rest/v1/orders?order=date.desc&select=id,name,code,date,employee,contested,contest_message,image_base64", { headers: dbH });
   return r.json();
+}
+async function dbDelete(id) {
+  await fetch(SUPABASE_URL + "/rest/v1/orders?id=eq." + id, { method: "DELETE", headers: dbH });
+}
+async function dbDeleteOlderThan(date) {
+  await fetch(SUPABASE_URL + "/rest/v1/orders?date=lt." + date, { method: "DELETE", headers: dbH });
+}
+async function autoCleanOldOrders() {
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+  await dbDeleteOlderThan(oneMonthAgo.toISOString());
 }
 async function dbUpdate(id, data) {
   await fetch(SUPABASE_URL + "/rest/v1/orders?id=eq." + id, { method: "PATCH", headers: dbH, body: JSON.stringify(data) });
@@ -334,6 +346,7 @@ async function showAdmin() {
 async function loadOrders() {
   try {
     document.getElementById("admin-count").textContent = "Chargement…";
+    await autoCleanOldOrders();
     const data = await dbGetOrders();
     orders = Array.isArray(data) ? data : [];
     updateStats();
@@ -419,6 +432,7 @@ Cordialement, La direction`;
           <div class="detail-row"><span class="icon">🔢</span><div><div class="lbl">Code commande</div><div class="val" style="font-family:monospace;color:#06C167">${o.code||'—'}</div></div></div>
           <div class="detail-row"><span class="icon">📅</span><div><div class="lbl">Date & heure</div><div class="val">${formatDate(o.date)}</div></div></div>
           <div class="detail-row"><span class="icon">🧑‍💼</span><div><div class="lbl">Scanné par</div><div class="val">${o.employee||'—'}</div></div></div>
+          <button onclick="deleteOrder('${o.id}')" style="background:#fef2f2;color:#ef4444;border:1px solid #ef4444;border-radius:8px;padding:10px 16px;cursor:pointer;font-size:14px;width:100%;margin-bottom:8px;font-weight:600">🗑️ Supprimer cette commande</button>
           <button onclick="downloadImage('${o.image_base64}', '${o.name} - ${o.code}')" style="background:#1a1a2e;color:white;border:none;border-radius:8px;padding:10px 16px;cursor:pointer;font-size:14px;width:100%;margin-bottom:10px;font-weight:600">📥 Télécharger la photo</button>
           <div class="contest-section">
             <h4>⚠️ Contester un remboursement</h4>
@@ -439,6 +453,23 @@ async function copyContest(id) {
   updateStats(); renderOrders();
   showToast("✅ Message copié ! Collez-le dans Uber Eats Manager.");
   closeModal();
+}
+
+async function deleteOrder(id) {
+  if (!confirm("Supprimer cette commande ?")) return;
+  await dbDelete(id);
+  orders = orders.filter(o => o.id != id);
+  updateStats(); renderOrders();
+  closeModal();
+  showToast("✅ Commande supprimée.");
+}
+
+async function deleteAllConfirm() {
+  if (!confirm("Supprimer TOUTES les commandes ? Cette action est irréversible.")) return;
+  for (const o of orders) await dbDelete(o.id);
+  orders = [];
+  updateStats(); renderOrders();
+  showToast("✅ Toutes les commandes supprimées.");
 }
 
 function downloadImage(src, filename) {
