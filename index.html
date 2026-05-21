@@ -279,7 +279,7 @@ function startScanLoop() {
         lastScanTime = now + 6000; // pause 6s after success
         await dbInsert({ name: result.name, code: result.code, date: new Date().toISOString(), employee: staffName, image_base64: commandPhotoData, contested: false });
         commandPhotoData = null;
-        setTimeout(() => showStep1(), 6000);
+        stopScan(); showStep1();
         showToast("✅ Commande enregistrée !\n" + result.name + " — " + result.code);
         status.textContent = "✅ Enregistré ! Prochain scan dans 6s…";
         setTimeout(() => { status.textContent = "✅ Caméra active — scan automatique toutes les 4s"; }, 6000);
