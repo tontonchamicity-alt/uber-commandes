@@ -224,59 +224,40 @@ function stopScanLoop() {
   if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
 }
 
-// Fusionne photo commande + photo ticket en une seule image avec titre
+// Ajoute un bandeau info en haut à gauche de la photo commande
 async function mergeImages(commandImg, ticketImg, name, code, date) {
   return new Promise(resolve => {
-    const W = 800, H = 950;
-    const offscreen = document.createElement("canvas");
-    offscreen.width = W; offscreen.height = H;
-    const ctx = offscreen.getContext("2d");
-
-    // Fond
-    ctx.fillStyle = "#1a1a2e";
-    ctx.fillRect(0, 0, W, H);
-
-    // Bandeau titre vert
-    ctx.fillStyle = "#06C167";
-    ctx.fillRect(0, 0, W, 80);
-
-    // Nom + code
-    ctx.fillStyle = "white";
-    ctx.font = "bold 30px sans-serif";
-    ctx.fillText(name + "  —  " + code, 20, 50);
-
-    // Date
-    ctx.font = "15px sans-serif";
-    ctx.fillStyle = "rgba(255,255,255,0.85)";
-    ctx.fillText(date, 20, 72);
-
-    // Séparateur
-    ctx.fillStyle = "#06C167";
-    ctx.fillRect(0, 80, W, 3);
-
     const img1 = new Image();
     img1.onload = () => {
-      // Photo commande (haut)
-      ctx.drawImage(img1, 0, 83, W, 420);
+      const W = img1.width, H = img1.height;
+      const offscreen = document.createElement("canvas");
+      offscreen.width = W; offscreen.height = H;
+      const ctx = offscreen.getContext("2d");
 
-      // Séparateur milieu
-      ctx.fillStyle = "#1a1a2e";
-      ctx.fillRect(0, 503, W, 4);
+      // Photo commande en plein format
+      ctx.drawImage(img1, 0, 0, W, H);
+
+      // Bandeau semi-transparent en haut à gauche
+      const bW = Math.min(W * 0.65, 420);
+      const bH = 80;
+      ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
+      ctx.beginPath();
+      ctx.roundRect(14, 14, bW, bH, 12);
+      ctx.fill();
+
+      // Nom
+      ctx.fillStyle = "#06C167";
+      ctx.font = "bold " + Math.round(W * 0.038) + "px sans-serif";
+      ctx.fillText(name, 26, 46);
+
+      // Code
       ctx.fillStyle = "white";
-      ctx.font = "bold 13px sans-serif";
-      ctx.fillStyle = "#aaa";
-      ctx.fillText("── TICKET DE COMMANDE ──", W/2 - 110, 518);
+      ctx.font = "bold " + Math.round(W * 0.032) + "px sans-serif";
+      ctx.fillText(code, 26, 72);
 
-      const img2 = new Image();
-      img2.onload = () => {
-        // Photo ticket (bas)
-        ctx.drawImage(img2, 0, 525, W, 425);
-        resolve(offscreen.toDataURL("image/jpeg", 0.88));
-      };
-      img2.onerror = () => resolve(offscreen.toDataURL("image/jpeg", 0.88));
-      img2.src = ticketImg;
+      resolve(offscreen.toDataURL("image/jpeg", 0.9));
     };
-    img1.onerror = () => resolve(offscreen.toDataURL("image/jpeg", 0.88));
+    img1.onerror = () => resolve(commandImg);
     img1.src = commandImg;
   });
 }
