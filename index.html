@@ -218,7 +218,8 @@ async function startCamera() {
 }
 
 function showStep1() {
-  // Affiche bouton pour prendre photo de la commande
+  document.getElementById("scan-rect").style.display = "none";
+  document.getElementById("scan-label").style.display = "none";
   const existing = document.getElementById("step-btn");
   if (existing) existing.remove();
   const btn = document.createElement("button");
@@ -227,13 +228,14 @@ function showStep1() {
   btn.style.cssText = "position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#06C167;color:white;border:none;border-radius:16px;padding:16px 28px;font-size:16px;font-weight:700;cursor:pointer;z-index:50;box-shadow:0 4px 20px rgba(0,0,0,0.3)";
   btn.onclick = () => {
     commandPhotoData = captureFullFrame();
-    document.getElementById("scan-status").textContent = "✅ Photo prise ! Étape 2 — Placez le ticket dans le cadre rouge";
+    document.getElementById("scan-rect").style.display = "block";
+    document.getElementById("scan-label").style.display = "block";
+    document.getElementById("scan-status").textContent = "✅ Photo prise ! Placez le ticket dans le cadre rouge";
     btn.remove();
     startScanLoop();
   };
   document.getElementById("scan-screen").appendChild(btn);
 }
-
 function stopScan() {
   if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
   const video = document.getElementById("video");
