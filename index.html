@@ -499,7 +499,14 @@ function startScanLoop() {
         }
         stopScanLoop();
         const mergedImg = await mergeImages(commandPhotoData, result.name, result.code);
-        await dbInsert({ name: result.name, code: result.code, date: new Date().toISOString(), employee: staffName, image_base64: mergedImg, contested: false });
+        // Upload sur Cloudinary
+        let imageUrl = null;
+        try {
+          imageUrl = await uploadToCloudinary(mergedImg, "image/jpeg");
+        } catch(e) {
+          imageUrl = mergedImg; // fallback base64
+        }
+        await dbInsert({ name: result.name, code: result.code, date: new Date().toISOString(), employee: staffName, image_base64: imageUrl, contested: false });
         // Mise à jour clients
         const clientInfo = await dbUpsertClient(result.name);
         // Notification Telegram
@@ -521,7 +528,15 @@ function startScanLoop() {
   }, 500);
 }
 
-async function analyzeTicket(b64) {
+async function uploadToCloudinary(base64Data, mediaType) {
+  const r = await fetch("/api/upload", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ image: base64Data.split(",")[1], mediaType: mediaType || "image/jpeg" })
+  });
+  const data = await r.json();
+  return data.url || null;
+}
   const r = await fetch("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ image: b64, mediaType: "image/jpeg" }) });
   return r.json();
 }
