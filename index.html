@@ -169,6 +169,7 @@
   <div class="tabs">
     <button class="tab active" onclick="switchTab('orders')">📦 Commandes</button>
     <button class="tab" onclick="switchTab('contest')">⚠️ Contestations</button>
+    <button class="tab" onclick="switchTab('mycontests')">📋 Mes Contestations</button>
     <button class="tab" onclick="switchTab('suspects')">🔴 Suspects</button>
     <button class="tab" onclick="switchTab('stats')">📈 Stats</button>
   </div>
@@ -187,6 +188,12 @@
       <textarea id="contest-list" placeholder="Ex:&#10;Rabir D. — 6A569&#10;Mohamed C. — 0C572"></textarea>
       <button class="btn-green" style="margin-top:12px" onclick="analyzeContestList()">🔍 Analyser la liste</button>
       <div class="contest-result" id="contest-result"></div>
+    </div>
+  </div>
+
+  <div id="tab-mycontests" class="tab-content">
+    <div class="suspects-tab" id="mycontests-list">
+      <div class="empty"><div>📋</div><p>Chargement…</p></div>
     </div>
   </div>
 
@@ -534,12 +541,13 @@ async function showAdmin() {
 
 function switchTab(tab) {
   document.querySelectorAll(".tab").forEach((t, i) => {
-    t.classList.toggle("active", ["orders","contest","suspects","stats"][i] === tab);
+    t.classList.toggle("active", ["orders","contest","mycontests","suspects","stats"][i] === tab);
   });
   document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
   document.getElementById("tab-" + tab).classList.add("active");
   if (tab === "suspects") renderSuspects();
   if (tab === "stats") renderStats();
+  if (tab === "mycontests") renderMyContests();
 }
 
 async function loadOrders() {
@@ -596,7 +604,63 @@ function renderOrders() {
   });
 }
 
-function renderSuspects() {
+function renderMyContests() {
+  const container = document.getElementById("mycontests-list");
+  const contested = orders.filter(o => o.contested);
+  if (!contested.length) {
+    container.innerHTML = '<div class="empty"><div>📋</div><p>Aucune contestation en cours</p></div>';
+    return;
+  }
+  const total = contested.reduce((s, o) => s + (parseFloat(o.montant) || 0), 0);
+  const accepted = contested.filter(o => o.statut_contestation === "acceptee").length;
+  const refused = contested.filter(o => o.statut_contestation === "refusee").length;
+  const pending = contested.filter(o => !o.statut_contestation || o.statut_contestation === "non_contestee" || o.statut_contestation === "en_attente").length;
+
+  container.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:16px 0 20px">
+      <div class="stats-card"><div class="big" style="color:#06C167">${accepted}</div><div class="label">✅ Acceptées</div></div>
+      <div class="stats-card"><div class="big" style="color:#f59e0b">${pending}</div><div class="label">⏳ En attente</div></div>
+      <div class="stats-card"><div class="big" style="color:#ef4444">${refused}</div><div class="label">❌ Refusées</div></div>
+    </div>
+    <div style="background:rgba(6,193,103,0.1);border:1px solid rgba(6,193,103,0.3);border-radius:12px;padding:14px 16px;margin-bottom:16px;text-align:center">
+      <div style="font-size:13px;color:rgba(255,255,255,0.5)">💰 Total montant saisi</div>
+      <div style="font-size:28px;font-weight:800;color:#06C167">${total.toFixed(2)} €</div>
+    </div>
+    ${contested.map(o => `
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+          <div>
+            <div style="font-weight:700;font-size:15px">${o.name}</div>
+            <div style="font-family:monospace;color:#06C167;font-size:12px">${o.code}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px">📅 ${formatDate(o.date)}</div>
+          </div>
+          <div style="text-align:right">
+            <input type="number" placeholder="Montant €" value="${o.montant || ''}" step="0.01" min="0"
+              style="width:90px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:white;font-size:13px;text-align:right;outline:none"
+              onchange="updateMontant('${o.id}', this.value)" />
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button onclick="updateStatut('${o.id}', 'en_attente')" style="flex:1;padding:7px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:600;background:${!o.statut_contestation || o.statut_contestation==='en_attente'||o.statut_contestation==='non_contestee' ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.06)'};color:${!o.statut_contestation || o.statut_contestation==='en_attente'||o.statut_contestation==='non_contestee' ? '#f59e0b' : 'rgba(255,255,255,0.4)'}">⏳ En attente</button>
+          <button onclick="updateStatut('${o.id}', 'acceptee')" style="flex:1;padding:7px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:600;background:${o.statut_contestation==='acceptee' ? 'rgba(6,193,103,0.3)' : 'rgba(255,255,255,0.06)'};color:${o.statut_contestation==='acceptee' ? '#06C167' : 'rgba(255,255,255,0.4)'}">✅ Acceptée</button>
+          <button onclick="updateStatut('${o.id}', 'refusee')" style="flex:1;padding:7px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:600;background:${o.statut_contestation==='refusee' ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.06)'};color:${o.statut_contestation==='refusee' ? '#ef4444' : 'rgba(255,255,255,0.4)'}">❌ Refusée</button>
+        </div>
+      </div>`).join("")}`;
+}
+
+async function updateStatut(id, statut) {
+  await dbUpdate(id, { statut_contestation: statut });
+  orders = orders.map(o => o.id==id ? {...o, statut_contestation: statut} : o);
+  renderMyContests();
+  showToast("✅ Statut mis à jour !");
+}
+
+async function updateMontant(id, montant) {
+  const val = parseFloat(montant) || 0;
+  await dbUpdate(id, { montant: val });
+  orders = orders.map(o => o.id==id ? {...o, montant: val} : o);
+  renderMyContests();
+} {
   const container = document.getElementById("suspects-list");
   const counts = {};
   orders.forEach(o => { counts[o.name] = (counts[o.name]||0) + 1; });
@@ -628,34 +692,48 @@ function analyzeContestList() {
   if (!raw) return;
   const lines = raw.split("\n").filter(l => l.trim());
   const result = document.getElementById("contest-result");
-  result.innerHTML = lines.map(line => {
+
+  const found = [], notFound = [];
+
+  lines.forEach(line => {
     const parts = line.split(/[-–—]/);
     const name = parts[0]?.trim() || "";
     const code = parts[parts.length-1]?.trim() || "";
-    const found = orders.find(o => o.code?.toLowerCase()===code.toLowerCase() || o.name?.toLowerCase()===name.toLowerCase());
-    if (found) {
-      const contestMsg = generateContestMsg(found);
-      const gmailUrl = "https://mail.google.com/mail/?view=cm&to=" + encodeURIComponent(UBER_EMAIL) + "&su=" + encodeURIComponent("Contestation — " + found.name + " / " + found.code) + "&body=" + encodeURIComponent(contestMsg);
-      return `<div class="contest-item found">
-        <div class="contest-item-info">
-          <div class="contest-item-name">✅ ${found.name}</div>
-          <div class="contest-item-code">${found.code}</div>
-          <div class="contest-item-status" style="color:#06C167">Photo trouvée — ${formatDate(found.date)}</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <button onclick='openModal(${JSON.stringify(found).replace(/'/g,"&#39;")})' style="background:rgba(6,193,103,0.2);border:1px solid rgba(6,193,103,0.3);color:#06C167;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600">👁️ Voir</button>
-          <a href="${gmailUrl}" target="_blank" style="background:rgba(6,193,103,0.2);border:1px solid rgba(6,193,103,0.3);color:#06C167;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;text-decoration:none;text-align:center">📧 Gmail</a>
-        </div>
-      </div>`;
-    }
-    return `<div class="contest-item not-found">
-      <div class="contest-item-info">
-        <div class="contest-item-name">❌ ${name || line}</div>
-        <div class="contest-item-code">${code}</div>
-        <div class="contest-item-status" style="color:#ef4444">Non trouvée dans la base</div>
+    const order = orders.find(o => o.code?.toLowerCase()===code.toLowerCase() || o.name?.toLowerCase()===name.toLowerCase());
+    if (order) found.push({ line, name, code, order });
+    else notFound.push({ line, name, code });
+  });
+
+  result.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+      <div>
+        <div style="color:#06C167;font-weight:700;font-size:14px;margin-bottom:10px">✅ Trouvées (${found.length})</div>
+        ${found.length === 0 ? '<div style="color:rgba(255,255,255,0.3);font-size:13px">Aucune commande trouvée</div>' : found.map(({name, code, order}) => {
+          const contestMsg = generateContestMsg(order);
+          const gmailUrl = "https://mail.google.com/mail/?view=cm&to=" + encodeURIComponent(UBER_EMAIL) + "&su=" + encodeURIComponent("Contestation — " + order.name + " / " + order.code) + "&body=" + encodeURIComponent(contestMsg);
+          return `<div class="contest-item found" style="flex-direction:column;align-items:flex-start;gap:8px">
+            <div class="contest-item-info">
+              <div class="contest-item-name">👤 ${order.name}</div>
+              <div class="contest-item-code">${order.code}</div>
+              <div class="contest-item-status" style="color:#06C167">📅 ${formatDate(order.date)}</div>
+            </div>
+            <div style="display:flex;gap:6px;width:100%">
+              <button onclick='openModal(${JSON.stringify(order).replace(/'/g,"&#39;")})' style="flex:1;background:rgba(6,193,103,0.2);border:1px solid rgba(6,193,103,0.3);color:#06C167;border-radius:8px;padding:6px;cursor:pointer;font-size:12px;font-weight:600">👁️ Voir</button>
+              <a href="${gmailUrl}" target="_blank" style="flex:1;background:rgba(6,193,103,0.2);border:1px solid rgba(6,193,103,0.3);color:#06C167;border-radius:8px;padding:6px;font-size:12px;font-weight:600;text-decoration:none;text-align:center">📧 Gmail</a>
+            </div>
+          </div>`;
+        }).join("")}
+      </div>
+      <div>
+        <div style="color:#ef4444;font-weight:700;font-size:14px;margin-bottom:10px">❌ Non trouvées (${notFound.length})</div>
+        ${notFound.length === 0 ? '<div style="color:rgba(255,255,255,0.3);font-size:13px">Toutes les commandes ont été trouvées !</div>' : notFound.map(({name, code}) => `
+          <div class="contest-item not-found" style="flex-direction:column;align-items:flex-start">
+            <div class="contest-item-name">👤 ${name || '—'}</div>
+            <div class="contest-item-code">${code}</div>
+            <div class="contest-item-status" style="color:#ef4444">Non scannée</div>
+          </div>`).join("")}
       </div>
     </div>`;
-  }).join("");
 }
 
 function generateContestMsg(o) {
