@@ -251,12 +251,19 @@ function logout() {
 
 // ===== SUPABASE =====
 async function dbInsert(order) {
-  const r = await fetch(SUPABASE_URL + "/rest/v1/orders", { method: "POST", headers: { ...dbH, "Prefer": "return=representation" }, body: JSON.stringify(order) });
+  const r = await fetch(SUPABASE_URL + "/rest/v1/orders", {
+    method: "POST",
+    headers: { ...dbH, "Prefer": "return=representation" },
+    body: JSON.stringify(order)
+  });
   return r.json();
 }
 
 async function dbGetOrders() {
-  const r = await fetch(SUPABASE_URL + "/rest/v1/orders?order=date.desc&select=id,name,code,date,employee,contested,contest_message,image_base64&limit=100", { headers: dbH });
+  const r = await fetch(
+    SUPABASE_URL + "/rest/v1/orders?order=date.desc&select=id,name,code,date,employee,contested,contest_message,image_base64&limit=30",
+    { headers: dbH }
+  );
   return r.json();
 }
 
@@ -276,7 +283,7 @@ async function dbCheckDuplicate(code) {
 
 async function dbUpsertClient(name) {
   try {
-    const r = await fetch(SUPABASE_URL + "/rest/v1/clients?name=eq." + encodeURIComponent(name) + "&select=id,total_orders,total_refunds", { headers: dbH });
+    const r = await fetch(SUPABASE_URL + "/rest/v1/clients?name=eq." + encodeURIComponent(name) + "&select=id,total_orders", { headers: dbH });
     const data = await r.json();
     if (Array.isArray(data) && data.length > 0) {
       const c = data[0];
@@ -326,55 +333,64 @@ async function startCamera() {
   const video = document.getElementById("video");
   const status = document.getElementById("scan-status");
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } } });
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
     video.srcObject = stream;
     flashTrack = stream.getVideoTracks()[0];
-    try { await flashTrack.applyConstraints({ advanced: [{ torch: true }] }); flashOn = true; document.getElementById("flash-btn").style.color = "#FFD700"; } catch(e) {}
+    // Flash auto — silencieux si non supporté
+    try {
+      const caps = flashTrack.getCapabilities();
+      if (caps && caps.torch) {
+        await flashTrack.applyConstraints({ advanced: [{ torch: true }] });
+        flashOn = true;
+        document.getElementById("flash-btn").style.color = "#FFD700";
+      }
+    } catch(e) {}
     video.onloadedmetadata = () => { video.play(); showStep1(); };
   } catch(e) { status.textContent = "❌ Caméra inaccessible : " + e.message; }
 }
 
 function showStep1() {
-  stopScanLoop(); commandPhotoData = null;
+  stopScanLoop();
+  commandPhotoData = null;
   document.getElementById("scan-rect").style.display = "none";
   document.getElementById("scan-label").style.display = "none";
   document.getElementById("scan-status").textContent = "📦 Étape 1 — Photographiez la commande";
-  const existing = document.getElementById("step-btn");
-  if (existing) existing.remove();
+  // Supprimer anciens boutons
+  ["step-btn", "retake-btn"].forEach(id => { const el = document.getElementById(id); if (el) el.remove(); });
+
   const btn = document.createElement("button");
   btn.id = "step-btn";
   btn.textContent = "📦 Photographier la commande";
   btn.style.cssText = "position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#06C167,#04a855);color:white;border:none;border-radius:16px;padding:18px 32px;font-size:17px;font-weight:700;cursor:pointer;z-index:50;box-shadow:0 4px 24px rgba(6,193,103,0.5)";
-  btn.onclick = () => {
-    if (!isImageSharp()) { showToast("📷 Photo floue ! Stabilisez.", true); return; }
-    commandPhotoData = captureFullFrame();
-    document.getElementById("scan-rect").style.display = "block";
-    document.getElementById("scan-label").style.display = "block";
-    document.getElementById("scan-status").textContent = "✅ Photo prise ! Placez le ticket dans le cadre";
-    btn.remove();
-    startScanLoop();
-  };
+  btn.onclick = () => { takeCommandPhoto(); };
   document.getElementById("scan-screen").appendChild(btn);
 }
 
-function isImageSharp() {
-  const video = document.getElementById("video");
-  const c = document.getElementById("canvas");
-  if (video.readyState < 2) return true;
-  c.width = 100; c.height = 100;
-  const ctx = c.getContext("2d");
-  ctx.drawImage(video, 0, 0, 100, 100);
-  const d = ctx.getImageData(0, 0, 100, 100).data;
-  let mean = 0, variance = 0;
-  for (let i = 0; i < d.length; i += 4) mean += (d[i]+d[i+1]+d[i+2])/3;
-  mean /= (d.length/4);
-  for (let i = 0; i < d.length; i += 4) { const v = (d[i]+d[i+1]+d[i+2])/3-mean; variance += v*v; }
-  return (variance/(d.length/4)) > 100;
+function takeCommandPhoto() {
+  commandPhotoData = captureFullFrame();
+  // Bouton reprendre photo
+  ["step-btn", "retake-btn"].forEach(id => { const el = document.getElementById(id); if (el) el.remove(); });
+
+  const retakeBtn = document.createElement("button");
+  retakeBtn.id = "retake-btn";
+  retakeBtn.textContent = "🔄 Reprendre la photo";
+  retakeBtn.style.cssText = "position:fixed;bottom:40px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.3);border-radius:12px;padding:10px 24px;font-size:14px;font-weight:600;cursor:pointer;z-index:50";
+  retakeBtn.onclick = () => { retakeBtn.remove(); showStep1(); };
+  document.getElementById("scan-screen").appendChild(retakeBtn);
+
+  document.getElementById("scan-rect").style.display = "block";
+  document.getElementById("scan-label").style.display = "block";
+  document.getElementById("scan-status").textContent = "✅ Photo prise ! Placez le ticket dans le cadre";
+  startScanLoop();
 }
 
 function stopScan() {
   stopScanLoop();
-  if (flashTrack) { try { flashTrack.applyConstraints({ advanced: [{ torch: false }] }); } catch(e) {} }
+  if (flashTrack) {
+    try { flashTrack.applyConstraints({ advanced: [{ torch: false }] }); } catch(e) {}
+  }
   const video = document.getElementById("video");
   if (video && video.srcObject) { video.srcObject.getTracks().forEach(t => t.stop()); video.srcObject = null; }
 }
@@ -411,19 +427,19 @@ async function mergeImages(commandImg, name, code) {
 function captureFrame() {
   const video = document.getElementById("video");
   const canvas = document.getElementById("canvas");
-  if (video.readyState < 2) return null;
+  if (!video || video.readyState < 2) return null;
   const vw = video.videoWidth, vh = video.videoHeight;
   const scale = 0.6;
-  const rw = vw*0.75*scale, rh = vh*0.45*scale;
+  const rw = vw * 0.75 * scale, rh = vh * 0.45 * scale;
   canvas.width = rw; canvas.height = rh;
-  canvas.getContext("2d").drawImage(video, (vw-vw*0.75)/2, (vh-vh*0.45)/2, vw*0.75, vh*0.45, 0, 0, rw, rh);
+  canvas.getContext("2d").drawImage(video, (vw - vw*0.75)/2, (vh - vh*0.45)/2, vw*0.75, vh*0.45, 0, 0, rw, rh);
   return canvas.toDataURL("image/jpeg", 0.75).split(",")[1];
 }
 
 function captureFullFrame() {
   const video = document.getElementById("video");
   const canvas = document.getElementById("canvas");
-  if (video.readyState < 2) return null;
+  if (!video || video.readyState < 2) return null;
   canvas.width = video.videoWidth; canvas.height = video.videoHeight;
   canvas.getContext("2d").drawImage(video, 0, 0);
   return canvas.toDataURL("image/jpeg", 0.85);
@@ -451,6 +467,8 @@ function startScanLoop() {
           return;
         }
         stopScanLoop();
+        // Supprimer bouton reprendre
+        const rb = document.getElementById("retake-btn"); if (rb) rb.remove();
         const mergedImg = await mergeImages(commandPhotoData, result.name, result.code);
         let imageUrl = mergedImg;
         try {
@@ -477,20 +495,33 @@ function startScanLoop() {
 }
 
 async function analyzeTicket(b64) {
-  const r = await fetch("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ image: b64, mediaType: "image/jpeg" }) });
+  const r = await fetch("/api/analyze", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ image: b64, mediaType: "image/jpeg" })
+  });
   return r.json();
 }
 
 async function uploadToCloudinary(base64Data, mediaType) {
-  const r = await fetch("/api/upload", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ image: base64Data.split(",")[1], mediaType: mediaType || "image/jpeg" }) });
+  const r = await fetch("/api/upload", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ image: base64Data.split(",")[1], mediaType: mediaType || "image/jpeg" })
+  });
   const data = await r.json();
   return data.url || null;
 }
 
 async function sendTelegram(name, code, employee, isSuspect) {
   try {
-    const msg = (isSuspect ? "🔴 CLIENT SUSPECT !\n" : "✅ Nouvelle commande\n") + "👤 " + name + "\n🔢 " + code + "\n👷 " + employee + "\n📅 " + formatDate(new Date().toISOString());
-    await fetch("/api/telegram", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: msg }) });
+    const msg = (isSuspect ? "🔴 CLIENT SUSPECT !\n" : "✅ Nouvelle commande\n") +
+      "👤 " + name + "\n🔢 " + code + "\n👷 " + employee + "\n📅 " + formatDate(new Date().toISOString());
+    await fetch("/api/telegram", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: msg })
+    });
   } catch(e) {}
 }
 
@@ -573,19 +604,19 @@ function renderSuspects() {
   if (!suspects.length) { container.innerHTML = '<div class="empty"><div>✅</div><p>Aucun client suspect</p></div>'; return; }
   container.innerHTML = suspects.map(([name, cnt]) => `
     <div class="suspect-card">
-      <div><div class="suspect-name">👤 ${name}</div><div class="suspect-info">${cnt} commandes enregistrées</div></div>
+      <div><div class="suspect-name">👤 ${name}</div><div class="suspect-info">${cnt} commandes</div></div>
       <span class="suspect-badge">⚠️ ${cnt}x</span>
     </div>`).join("");
 }
 
 function renderStats() {
   const now = new Date();
-  const week = orders.filter(o => new Date(o.date) > new Date(now-7*86400000)).length;
-  const month = orders.filter(o => new Date(o.date) > new Date(now-30*86400000)).length;
-  const rate = orders.length ? Math.round(orders.filter(o=>o.contested).length/orders.length*100) : 0;
+  const week = orders.filter(o => new Date(o.date) > new Date(now - 7*86400000)).length;
+  const month = orders.filter(o => new Date(o.date) > new Date(now - 30*86400000)).length;
+  const rate = orders.length ? Math.round(orders.filter(o => o.contested).length / orders.length * 100) : 0;
   const empCount = {};
-  orders.forEach(o => { empCount[o.employee] = (empCount[o.employee]||0)+1; });
-  const topEmp = Object.entries(empCount).sort((a,b)=>b[1]-a[1])[0];
+  orders.forEach(o => { empCount[o.employee] = (empCount[o.employee]||0) + 1; });
+  const topEmp = Object.entries(empCount).sort((a,b) => b[1]-a[1])[0];
   document.getElementById("stats-week").textContent = week;
   document.getElementById("stats-month").textContent = month;
   document.getElementById("stats-contest-rate").textContent = rate + "%";
