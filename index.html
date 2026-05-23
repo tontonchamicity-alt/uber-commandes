@@ -252,10 +252,10 @@ const dbH = { "Content-Type": "application/json", "apikey": SUPABASE_KEY, "Autho
 
 let role = null, staffName = "", orders = [], scanInterval = null, scanning = false, lastScanTime = 0, commandPhotoData = null, flashOn = false, flashTrack = null;
 
-// AUDIO
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let audioCtx = null;
 function playBeep() {
   try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const o = audioCtx.createOscillator();
     const g = audioCtx.createGain();
     o.connect(g); g.connect(audioCtx.destination);
@@ -537,6 +537,8 @@ async function uploadToCloudinary(base64Data, mediaType) {
   const data = await r.json();
   return data.url || null;
 }
+
+async function analyzeTicket(b64) {
   const r = await fetch("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ image: b64, mediaType: "image/jpeg" }) });
   return r.json();
 }
