@@ -7,17 +7,14 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: white; min-height: 100vh; }
-
     #login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a2a1a 100%); }
-    .login-box { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(6,193,103,0.3); color: white; border-radius: 24px; padding: 48px 40px; width: 360px; max-width: 90vw; box-shadow: 0 20px 60px rgba(0,0,0,0.5); text-align: center; }
+    .login-box { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(6,193,103,0.3); color: white; border-radius: 24px; padding: 48px 40px; width: 360px; max-width: 90vw; text-align: center; }
     .login-box h2 { margin: 12px 0 6px; font-size: 24px; }
     .login-box p { color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 28px; }
     .login-box input { width: 100%; padding: 14px 16px; border-radius: 12px; border: 1px solid rgba(6,193,103,0.3); background: rgba(255,255,255,0.08); color: white; font-size: 15px; outline: none; margin-bottom: 10px; }
     .login-box input::placeholder { color: rgba(255,255,255,0.3); }
-    .login-box input:focus { border-color: #06C167; }
-    .btn-green { background: linear-gradient(135deg, #06C167, #04a855); color: white; border: none; border-radius: 12px; padding: 14px 20px; font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 6px; box-shadow: 0 4px 20px rgba(6,193,103,0.4); }
+    .btn-green { background: linear-gradient(135deg, #06C167, #04a855); color: white; border: none; border-radius: 12px; padding: 14px 20px; font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 6px; }
     .err { color: #ef4444; font-size: 13px; margin-top: 8px; }
-
     #scan-screen { display: none; flex-direction: column; min-height: 100vh; background: #0a0a0a; }
     #scan-header { background: linear-gradient(90deg, #0a2a1a, #1a1a2e); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(6,193,103,0.2); }
     #scan-header .title { font-weight: 700; font-size: 17px; }
@@ -31,33 +28,26 @@
     #scan-label { position: absolute; top: calc(50% - 23%); left: 50%; transform: translateX(-50%); background: #06C167; color: white; font-size: 13px; font-weight: 700; padding: 5px 16px; border-radius: 20px; white-space: nowrap; display: none; }
     #scan-status { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; font-size: 14px; padding: 10px 24px; border-radius: 24px; white-space: nowrap; border: 1px solid rgba(255,255,255,0.1); }
     #flash-btn { position: absolute; top: 24px; right: 24px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 50%; width: 44px; height: 44px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-
-    #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #06C167; color: white; padding: 14px 28px; border-radius: 16px; font-size: 15px; font-weight: 700; display: none; z-index: 999; box-shadow: 0 8px 30px rgba(0,0,0,0.4); text-align: center; min-width: 260px; }
+    #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #06C167; color: white; padding: 14px 28px; border-radius: 16px; font-size: 15px; font-weight: 700; display: none; z-index: 999; text-align: center; min-width: 260px; }
     #toast.error { background: #ef4444; }
-
     #admin-screen { display: none; flex-direction: column; min-height: 100vh; background: #0f0f0f; color: white; }
     .admin-header { background: linear-gradient(90deg, #0a2a1a, #1a1a2e); color: white; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(6,193,103,0.2); }
     .admin-header-title { font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 10px; }
     .live-dot { width: 8px; height: 8px; background: #06C167; border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
     @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(1.3); } }
-
     .tabs { display: flex; gap: 4px; padding: 16px 20px 0; background: #0f0f0f; border-bottom: 1px solid rgba(255,255,255,0.08); overflow-x: auto; }
-    .tab { padding: 10px 16px; border-radius: 10px 10px 0 0; font-size: 13px; font-weight: 600; cursor: pointer; color: rgba(255,255,255,0.4); background: transparent; border: none; white-space: nowrap; }
+    .tab { padding: 10px 14px; border-radius: 10px 10px 0 0; font-size: 12px; font-weight: 600; cursor: pointer; color: rgba(255,255,255,0.4); background: transparent; border: none; white-space: nowrap; }
     .tab.active { background: rgba(6,193,103,0.15); color: #06C167; border-bottom: 2px solid #06C167; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-
     .stats { display: flex; gap: 12px; padding: 16px 20px 0; flex-wrap: wrap; }
     .stat { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px 16px; flex: 1 1 100px; }
     .stat .val { font-size: 26px; font-weight: 800; color: #06C167; margin: 4px 0 2px; }
     .stat .lbl { font-size: 11px; color: rgba(255,255,255,0.4); }
     .stat .icon { font-size: 20px; }
-
     .filters { display: flex; gap: 10px; padding: 14px 20px; flex-wrap: wrap; }
     .filters input { flex: 1 1 160px; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white; font-size: 14px; outline: none; }
     .filters input::placeholder { color: rgba(255,255,255,0.3); }
-    .filters input:focus { border-color: #06C167; }
-
     .grid { display: flex; flex-direction: column; gap: 10px; padding: 0 20px 24px; }
     .order-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; overflow: hidden; cursor: pointer; transition: all 0.2s; display: flex; height: 100px; }
     .order-card:hover { border-color: #06C167; background: rgba(6,193,103,0.05); transform: translateX(4px); }
@@ -71,33 +61,20 @@
     .card-name { font-weight: 700; font-size: 14px; color: white; }
     .card-code { font-family: monospace; color: #06C167; font-size: 12px; margin: 2px 0; }
     .card-meta { display: flex; justify-content: space-between; color: rgba(255,255,255,0.3); font-size: 10px; }
-
     .empty { text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.2); }
     .empty div { font-size: 48px; margin-bottom: 12px; }
-
-    .contest-tab, .suspects-tab, .stats-tab { padding: 20px; }
-    .contest-tab textarea { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white; font-size: 14px; min-height: 160px; resize: vertical; font-family: inherit; outline: none; }
-    .contest-tab textarea::placeholder { color: rgba(255,255,255,0.3); }
-    .contest-result { margin-top: 16px; }
-    .contest-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .tab-inner { padding: 20px; }
+    .tab-inner textarea { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white; font-size: 14px; min-height: 160px; resize: vertical; font-family: inherit; outline: none; }
+    .tab-inner textarea::placeholder { color: rgba(255,255,255,0.3); }
+    .contest-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
     .contest-item.found { border-color: rgba(6,193,103,0.3); }
     .contest-item.not-found { border-color: rgba(239,68,68,0.3); }
-    .contest-item-info { flex: 1; }
-    .contest-item-name { font-weight: 700; font-size: 14px; }
-    .contest-item-code { font-family: monospace; color: #06C167; font-size: 12px; }
-    .contest-item-status { font-size: 12px; margin-top: 4px; }
-
     .suspect-card { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-    .suspect-name { font-weight: 700; font-size: 15px; }
-    .suspect-info { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 3px; }
-    .suspect-badge { background: #f59e0b; color: white; border-radius: 8px; padding: 4px 10px; font-size: 12px; font-weight: 700; }
-
     .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
     .stats-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px; text-align: center; }
     .stats-card .big { font-size: 30px; font-weight: 800; color: #06C167; }
     .stats-card .label { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; }
     .export-btn { background: rgba(6,193,103,0.15); border: 1px solid rgba(6,193,103,0.3); color: #06C167; border-radius: 10px; padding: 11px 16px; cursor: pointer; font-size: 14px; font-weight: 600; width: 100%; margin-bottom: 8px; }
-
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; backdrop-filter: blur(4px); }
     .modal { background: #1a1a2e; border: 1px solid rgba(6,193,103,0.2); border-radius: 20px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; color: white; }
     .modal-hdr { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
@@ -123,7 +100,7 @@
     <div style="font-size:52px">🛵</div>
     <h2>Tonton Chami City</h2>
     <p>Suivi des commandes Uber Eats</p>
-    <input id="login-inp" type="text" placeholder="Prénom ou code admin" />
+    <input id="login-inp" type="text" placeholder="Prenom ou code admin" />
     <div id="login-err" class="err"></div>
     <button class="btn-green" onclick="doLogin()">Connexion</button>
   </div>
@@ -132,86 +109,87 @@
 <div id="scan-screen">
   <div id="scan-header">
     <div>
-      <div class="title">📷 Borne de Scan — <span id="scan-user"></span></div>
-      <div class="sub">Suivez les étapes</div>
+      <div class="title">Borne de Scan - <span id="scan-user"></span></div>
+      <div class="sub">Suivez les etapes</div>
     </div>
-    <button style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px" onclick="logout()">Déconnexion</button>
+    <button style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px" onclick="logout()">Deconnexion</button>
   </div>
   <div id="cam-wrap">
     <video id="video" autoplay playsinline muted></video>
     <canvas id="canvas"></canvas>
-    <div id="scan-rect"><span id="scan-label">🎫 Placez le ticket ici</span></div>
-    <div id="scan-status">⏳ Initialisation…</div>
-    <button id="flash-btn" onclick="toggleFlash()" title="Flash">🔦</button>
+    <div id="scan-rect"><span id="scan-label">Placez le ticket ici</span></div>
+    <div id="scan-status">Initialisation...</div>
+    <button id="flash-btn" onclick="toggleFlash()">flash</button>
   </div>
 </div>
 
 <div id="admin-screen">
   <div class="admin-header">
     <div class="admin-header-title">
-      <span class="live-dot"></span>🛵 Tonton Chami City
+      <span class="live-dot"></span>
+      Tonton Chami City
     </div>
     <div style="display:flex;gap:8px;align-items:center">
       <span id="admin-count" style="font-size:12px;color:rgba(255,255,255,0.5)">0 commande(s)</span>
-      <button style="background:rgba(255,255,255,0.1);border:none;color:white;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px" onclick="loadOrders()">🔄</button>
-      <button style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.3);color:#ef4444;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px" onclick="deleteAllConfirm()">🗑️</button>
-      <button style="background:rgba(255,255,255,0.1);border:none;color:white;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px" onclick="logout()">Déco</button>
+      <button style="background:rgba(255,255,255,0.1);border:none;color:white;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px" onclick="loadOrders()">refresh</button>
+      <button style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.3);color:#ef4444;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px" onclick="deleteAllConfirm()">suppr</button>
+      <button style="background:rgba(255,255,255,0.1);border:none;color:white;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px" onclick="logout()">Deco</button>
     </div>
   </div>
 
   <div class="stats">
     <div class="stat"><div class="icon">📦</div><div class="val" id="stat-total">0</div><div class="lbl">Total</div></div>
     <div class="stat"><div class="icon">📅</div><div class="val" id="stat-today">0</div><div class="lbl">Aujourd'hui</div></div>
-    <div class="stat"><div class="icon">⚠️</div><div class="val" id="stat-contested">0</div><div class="lbl">Contestées</div></div>
+    <div class="stat"><div class="icon">⚠️</div><div class="val" id="stat-contested">0</div><div class="lbl">Contestees</div></div>
     <div class="stat"><div class="icon">🔴</div><div class="val" id="stat-suspects">0</div><div class="lbl">Suspects</div></div>
   </div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('orders')">📦 Commandes</button>
-    <button class="tab" onclick="switchTab('contest')">⚠️ Contestations</button>
-    <button class="tab" onclick="switchTab('mycontests')">📋 Mes Contestations</button>
-    <button class="tab" onclick="switchTab('suspects')">🔴 Suspects</button>
-    <button class="tab" onclick="switchTab('stats')">📈 Stats</button>
+    <button class="tab active" onclick="switchTab('orders')">Commandes</button>
+    <button class="tab" onclick="switchTab('contest')">Contestations</button>
+    <button class="tab" onclick="switchTab('mycontests')">Mes Contestations</button>
+    <button class="tab" onclick="switchTab('suspects')">Suspects</button>
+    <button class="tab" onclick="switchTab('stats')">Stats</button>
   </div>
 
   <div id="tab-orders" class="tab-content active">
     <div class="filters">
-      <input id="search-inp" type="text" placeholder="🔍 Nom ou code…" oninput="renderOrders()" />
+      <input id="search-inp" type="text" placeholder="Nom ou code..." oninput="renderOrders()" />
       <input id="date-inp" type="date" oninput="renderOrders()" />
     </div>
     <div class="grid" id="orders-grid"></div>
   </div>
 
   <div id="tab-contest" class="tab-content">
-    <div class="contest-tab">
+    <div class="tab-inner">
       <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:12px">Collez la liste Uber Eats (une commande par ligne)</p>
-      <textarea id="contest-list" placeholder="Ex:&#10;Rabir D. — 6A569&#10;Mohamed C. — 0C572"></textarea>
-      <button class="btn-green" style="margin-top:12px" onclick="analyzeContestList()">🔍 Analyser la liste</button>
-      <div class="contest-result" id="contest-result"></div>
+      <textarea id="contest-list" placeholder="Rabir D. - 6A569"></textarea>
+      <button class="btn-green" style="margin-top:12px" onclick="analyzeContestList()">Analyser la liste</button>
+      <div id="contest-result" style="margin-top:16px"></div>
     </div>
   </div>
 
   <div id="tab-mycontests" class="tab-content">
-    <div class="suspects-tab" id="mycontests-list">
-      <div class="empty"><div>📋</div><p>Chargement…</p></div>
+    <div class="tab-inner" id="mycontests-list">
+      <div class="empty"><div>📋</div><p>Aucune contestation</p></div>
     </div>
   </div>
 
   <div id="tab-suspects" class="tab-content">
-    <div class="suspects-tab" id="suspects-list">
-      <div class="empty"><div>🔍</div><p>Chargement…</p></div>
+    <div class="tab-inner" id="suspects-list">
+      <div class="empty"><div>🔍</div><p>Chargement...</p></div>
     </div>
   </div>
 
   <div id="tab-stats" class="tab-content">
-    <div class="stats-tab">
+    <div class="tab-inner">
       <div class="stats-grid">
         <div class="stats-card"><div class="big" id="stats-week">0</div><div class="label">Cette semaine</div></div>
         <div class="stats-card"><div class="big" id="stats-month">0</div><div class="label">Ce mois</div></div>
         <div class="stats-card"><div class="big" id="stats-contest-rate">0%</div><div class="label">Taux contestation</div></div>
-        <div class="stats-card"><div class="big" id="stats-top-employee">—</div><div class="label">Top employé</div></div>
+        <div class="stats-card"><div class="big" id="stats-top-employee">-</div><div class="label">Top employe</div></div>
       </div>
-      <button class="export-btn" onclick="exportExcel()">📊 Exporter en CSV</button>
+      <button class="export-btn" onclick="exportExcel()">Exporter en CSV</button>
     </div>
   </div>
 </div>
@@ -220,31 +198,46 @@
 <div id="modal-root"></div>
 
 <script>
-const SUPABASE_URL = "https://trwjgmeshrrqiqoibzoz.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyd2pnbWVzaHJycWlxb2liem96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyOTE5MjIsImV4cCI6MjA5NDg2NzkyMn0.WEg_09BtpfkYWcHjiY9D7ApslWxB6HEYRFnd1AQdPNo";
-const ADMIN_CODE = "Nidaa2803";
-const UBER_EMAIL = "restaurants.belgium@uber.com";
-const dbH = { "Content-Type": "application/json", "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY };
+var SUPABASE_URL = "https://trwjgmeshrrqiqoibzoz.supabase.co";
+var SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyd2pnbWVzaHJycWlxb2liem96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyOTE5MjIsImV4cCI6MjA5NDg2NzkyMn0.WEg_09BtpfkYWcHjiY9D7ApslWxB6HEYRFnd1AQdPNo";
+var ADMIN_CODE = "Nidaa2803";
+var UBER_EMAIL = "restaurants.belgium@uber.com";
+var dbH = { "Content-Type": "application/json", "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY };
 
-let role = null, staffName = "", orders = [], scanInterval = null, scanning = false, lastScanTime = 0, commandPhotoData = null, flashOn = false, flashTrack = null, audioCtx = null;
+var role = null;
+var staffName = "";
+var orders = [];
+var scanInterval = null;
+var scanning = false;
+var lastScanTime = 0;
+var commandPhotoData = null;
+var flashOn = false;
+var flashTrack = null;
+var audioCtx = null;
 
 function playBeep() {
   try {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-    o.connect(g); g.connect(audioCtx.destination);
-    o.frequency.value = 880; g.gain.value = 0.3;
-    o.start(); o.stop(audioCtx.currentTime + 0.15);
+    var o = audioCtx.createOscillator();
+    var g = audioCtx.createGain();
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.frequency.value = 880;
+    g.gain.value = 0.3;
+    o.start();
+    o.stop(audioCtx.currentTime + 0.15);
   } catch(e) {}
 }
 
-document.getElementById("login-inp").addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+document.getElementById("login-inp").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") doLogin();
+});
 
 function doLogin() {
-  const v = document.getElementById("login-inp").value.trim();
+  var v = document.getElementById("login-inp").value.trim();
   if (v === ADMIN_CODE) { role = "admin"; showAdmin(); }
   else if (v.length >= 2) { role = "staff"; staffName = v; showScan(); }
-  else { document.getElementById("login-err").textContent = "Entrez votre prénom ou le code admin."; }
+  else { document.getElementById("login-err").textContent = "Entrez votre prenom ou le code admin."; }
 }
 
 function logout() {
@@ -256,106 +249,112 @@ function logout() {
   document.getElementById("login-inp").value = "";
 }
 
-// ===== SUPABASE =====
-async function dbInsert(order) {
-  const r = await fetch(SUPABASE_URL + "/rest/v1/orders", {
-    method: "POST",
-    headers: { ...dbH, "Prefer": "return=representation" },
-    body: JSON.stringify(order)
-  });
-  return r.json();
-}
-
-async function dbGetOrders() {
-  const r = await fetch(
-    SUPABASE_URL + "/rest/v1/orders?order=date.desc&select=id,name,code,date,employee,contested,contest_message,image_base64&limit=30",
-    { headers: dbH }
-  );
-  return r.json();
-}
-
-async function dbDelete(id) {
-  await fetch(SUPABASE_URL + "/rest/v1/orders?id=eq." + id, { method: "DELETE", headers: dbH });
-}
-
-async function dbUpdate(id, data) {
-  await fetch(SUPABASE_URL + "/rest/v1/orders?id=eq." + id, { method: "PATCH", headers: dbH, body: JSON.stringify(data) });
-}
-
-async function dbCheckDuplicate(code) {
-  const r = await fetch(SUPABASE_URL + "/rest/v1/orders?code=eq." + encodeURIComponent(code) + "&select=id", { headers: dbH });
-  const data = await r.json();
-  return Array.isArray(data) && data.length > 0;
-}
-
-async function dbUpsertClient(name) {
-  try {
-    const r = await fetch(SUPABASE_URL + "/rest/v1/clients?name=eq." + encodeURIComponent(name) + "&select=id,total_orders", { headers: dbH });
-    const data = await r.json();
-    if (Array.isArray(data) && data.length > 0) {
-      const c = data[0];
-      const newOrders = c.total_orders + 1;
-      const status = newOrders >= 3 ? "suspect" : "normal";
-      await fetch(SUPABASE_URL + "/rest/v1/clients?id=eq." + c.id, { method: "PATCH", headers: dbH, body: JSON.stringify({ total_orders: newOrders, status, last_order: new Date().toISOString() }) });
-      return { status };
-    } else {
-      await fetch(SUPABASE_URL + "/rest/v1/clients", { method: "POST", headers: { ...dbH, "Prefer": "return=representation" }, body: JSON.stringify({ name, total_orders: 1, total_refunds: 0, status: "normal", last_order: new Date().toISOString() }) });
-      return { status: "normal" };
-    }
-  } catch(e) { return { status: "normal" }; }
-}
-
-// ===== UTILS =====
-function showToast(msg, isErr = false) {
-  const t = document.getElementById("toast");
-  t.textContent = msg; t.className = isErr ? "error" : "";
+function showToast(msg, isErr) {
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = isErr ? "error" : "";
   t.style.display = "block";
-  setTimeout(() => t.style.display = "none", 3500);
+  setTimeout(function() { t.style.display = "none"; }, 3500);
 }
 
 function formatDate(iso) {
-  const d = new Date(iso);
-  return d.toLocaleDateString("fr-FR") + " à " + d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  var d = new Date(iso);
+  return d.toLocaleDateString("fr-FR") + " a " + d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
 }
 
-// ===== FLASH =====
-async function toggleFlash() {
+function dbFetch(path, opts) {
+  return fetch(SUPABASE_URL + path, Object.assign({ headers: dbH }, opts));
+}
+
+function dbInsert(order) {
+  return dbFetch("/rest/v1/orders", {
+    method: "POST",
+    headers: Object.assign({}, dbH, { "Prefer": "return=representation" }),
+    body: JSON.stringify(order)
+  }).then(function(r) { return r.json(); });
+}
+
+function dbGetOrders() {
+  return dbFetch("/rest/v1/orders?order=date.desc&select=id,name,code,date,employee,contested,contest_message,image_base64,montant,statut_contestation&limit=30")
+    .then(function(r) { return r.json(); });
+}
+
+function dbDelete(id) {
+  return dbFetch("/rest/v1/orders?id=eq." + id, { method: "DELETE" });
+}
+
+function dbUpdate(id, data) {
+  return dbFetch("/rest/v1/orders?id=eq." + id, {
+    method: "PATCH",
+    body: JSON.stringify(data)
+  });
+}
+
+function dbCheckDuplicate(code) {
+  return dbFetch("/rest/v1/orders?code=eq." + encodeURIComponent(code) + "&select=id")
+    .then(function(r) { return r.json(); })
+    .then(function(data) { return Array.isArray(data) && data.length > 0; });
+}
+
+function dbUpsertClient(name) {
+  return dbFetch("/rest/v1/clients?name=eq." + encodeURIComponent(name) + "&select=id,total_orders")
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (Array.isArray(data) && data.length > 0) {
+        var c = data[0];
+        var newOrders = c.total_orders + 1;
+        var status = newOrders >= 3 ? "suspect" : "normal";
+        return dbFetch("/rest/v1/clients?id=eq." + c.id, {
+          method: "PATCH",
+          body: JSON.stringify({ total_orders: newOrders, status: status, last_order: new Date().toISOString() })
+        }).then(function() { return { status: status }; });
+      } else {
+        return dbFetch("/rest/v1/clients", {
+          method: "POST",
+          headers: Object.assign({}, dbH, { "Prefer": "return=representation" }),
+          body: JSON.stringify({ name: name, total_orders: 1, total_refunds: 0, status: "normal", last_order: new Date().toISOString() })
+        }).then(function() { return { status: "normal" }; });
+      }
+    }).catch(function() { return { status: "normal" }; });
+}
+
+function toggleFlash() {
   if (!flashTrack) return;
-  try {
-    flashOn = !flashOn;
-    await flashTrack.applyConstraints({ advanced: [{ torch: flashOn }] });
-    document.getElementById("flash-btn").style.color = flashOn ? "#FFD700" : "white";
-  } catch(e) { showToast("Flash non disponible", true); }
+  flashOn = !flashOn;
+  flashTrack.applyConstraints({ advanced: [{ torch: flashOn }] }).catch(function() {
+    showToast("Flash non disponible", true);
+  });
+  document.getElementById("flash-btn").style.color = flashOn ? "#FFD700" : "white";
 }
 
-// ===== SCAN =====
-async function showScan() {
+function showScan() {
   document.getElementById("login-screen").style.display = "none";
   document.getElementById("scan-screen").style.display = "flex";
   document.getElementById("scan-user").textContent = staffName;
-  await startCamera();
+  startCamera();
 }
 
-async function startCamera() {
-  const video = document.getElementById("video");
-  const status = document.getElementById("scan-status");
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
-    });
+function startCamera() {
+  var video = document.getElementById("video");
+  var status = document.getElementById("scan-status");
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
+  }).then(function(stream) {
     video.srcObject = stream;
     flashTrack = stream.getVideoTracks()[0];
-    // Flash auto — silencieux si non supporté
     try {
-      const caps = flashTrack.getCapabilities();
+      var caps = flashTrack.getCapabilities();
       if (caps && caps.torch) {
-        await flashTrack.applyConstraints({ advanced: [{ torch: true }] });
-        flashOn = true;
-        document.getElementById("flash-btn").style.color = "#FFD700";
+        flashTrack.applyConstraints({ advanced: [{ torch: true }] }).then(function() {
+          flashOn = true;
+          document.getElementById("flash-btn").style.color = "#FFD700";
+        }).catch(function() {});
       }
     } catch(e) {}
-    video.onloadedmetadata = () => { video.play(); showStep1(); };
-  } catch(e) { status.textContent = "❌ Caméra inaccessible : " + e.message; }
+    video.onloadedmetadata = function() { video.play(); showStep1(); };
+  }).catch(function(e) {
+    status.textContent = "Camera inaccessible : " + e.message;
+  });
 }
 
 function showStep1() {
@@ -363,33 +362,37 @@ function showStep1() {
   commandPhotoData = null;
   document.getElementById("scan-rect").style.display = "none";
   document.getElementById("scan-label").style.display = "none";
-  document.getElementById("scan-status").textContent = "📦 Étape 1 — Photographiez la commande";
-  // Supprimer anciens boutons
-  ["step-btn", "retake-btn"].forEach(id => { const el = document.getElementById(id); if (el) el.remove(); });
+  document.getElementById("scan-status").textContent = "Etape 1 - Photographiez la commande";
+  var old1 = document.getElementById("step-btn");
+  var old2 = document.getElementById("retake-btn");
+  if (old1) old1.remove();
+  if (old2) old2.remove();
 
-  const btn = document.createElement("button");
+  var btn = document.createElement("button");
   btn.id = "step-btn";
-  btn.textContent = "📦 Photographier la commande";
+  btn.textContent = "Photographier la commande";
   btn.style.cssText = "position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#06C167,#04a855);color:white;border:none;border-radius:16px;padding:18px 32px;font-size:17px;font-weight:700;cursor:pointer;z-index:50;box-shadow:0 4px 24px rgba(6,193,103,0.5)";
-  btn.onclick = () => { takeCommandPhoto(); };
+  btn.onclick = function() { takeCommandPhoto(); };
   document.getElementById("scan-screen").appendChild(btn);
 }
 
 function takeCommandPhoto() {
   commandPhotoData = captureFullFrame();
-  // Bouton reprendre photo
-  ["step-btn", "retake-btn"].forEach(id => { const el = document.getElementById(id); if (el) el.remove(); });
+  var old1 = document.getElementById("step-btn");
+  var old2 = document.getElementById("retake-btn");
+  if (old1) old1.remove();
+  if (old2) old2.remove();
 
-  const retakeBtn = document.createElement("button");
+  var retakeBtn = document.createElement("button");
   retakeBtn.id = "retake-btn";
-  retakeBtn.textContent = "🔄 Reprendre la photo";
+  retakeBtn.textContent = "Reprendre la photo";
   retakeBtn.style.cssText = "position:fixed;bottom:40px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.3);border-radius:12px;padding:10px 24px;font-size:14px;font-weight:600;cursor:pointer;z-index:50";
-  retakeBtn.onclick = () => { retakeBtn.remove(); showStep1(); };
+  retakeBtn.onclick = function() { retakeBtn.remove(); showStep1(); };
   document.getElementById("scan-screen").appendChild(retakeBtn);
 
   document.getElementById("scan-rect").style.display = "block";
   document.getElementById("scan-label").style.display = "block";
-  document.getElementById("scan-status").textContent = "✅ Photo prise ! Placez le ticket dans le cadre";
+  document.getElementById("scan-status").textContent = "Photo prise ! Placez le ticket dans le cadre";
   startScanLoop();
 }
 
@@ -398,26 +401,31 @@ function stopScan() {
   if (flashTrack) {
     try { flashTrack.applyConstraints({ advanced: [{ torch: false }] }); } catch(e) {}
   }
-  const video = document.getElementById("video");
-  if (video && video.srcObject) { video.srcObject.getTracks().forEach(t => t.stop()); video.srcObject = null; }
+  var video = document.getElementById("video");
+  if (video && video.srcObject) {
+    video.srcObject.getTracks().forEach(function(t) { t.stop(); });
+    video.srcObject = null;
+  }
 }
 
 function stopScanLoop() {
   if (scanInterval) { clearInterval(scanInterval); scanInterval = null; }
 }
 
-async function mergeImages(commandImg, name, code) {
-  return new Promise(resolve => {
-    const img1 = new Image();
-    img1.onload = () => {
-      const W = img1.width, H = img1.height;
-      const off = document.createElement("canvas");
+function mergeImages(commandImg, name, code) {
+  return new Promise(function(resolve) {
+    var img1 = new Image();
+    img1.onload = function() {
+      var W = img1.width, H = img1.height;
+      var off = document.createElement("canvas");
       off.width = W; off.height = H;
-      const ctx = off.getContext("2d");
+      var ctx = off.getContext("2d");
       ctx.drawImage(img1, 0, 0, W, H);
-      const bW = Math.min(W * 0.65, 420), bH = 84;
+      var bW = Math.min(W * 0.65, 420), bH = 84;
       ctx.fillStyle = "rgba(0,0,0,0.6)";
-      ctx.beginPath(); ctx.roundRect(14, 14, bW, bH, 14); ctx.fill();
+      ctx.beginPath();
+      ctx.roundRect(14, 14, bW, bH, 14);
+      ctx.fill();
       ctx.fillStyle = "#06C167";
       ctx.font = "bold " + Math.round(W * 0.04) + "px sans-serif";
       ctx.fillText(name, 26, 50);
@@ -426,26 +434,26 @@ async function mergeImages(commandImg, name, code) {
       ctx.fillText(code, 26, 78);
       resolve(off.toDataURL("image/jpeg", 0.88));
     };
-    img1.onerror = () => resolve(commandImg);
+    img1.onerror = function() { resolve(commandImg); };
     img1.src = commandImg;
   });
 }
 
 function captureFrame() {
-  const video = document.getElementById("video");
-  const canvas = document.getElementById("canvas");
+  var video = document.getElementById("video");
+  var canvas = document.getElementById("canvas");
   if (!video || video.readyState < 2) return null;
-  const vw = video.videoWidth, vh = video.videoHeight;
-  const scale = 0.6;
-  const rw = vw * 0.75 * scale, rh = vh * 0.45 * scale;
+  var vw = video.videoWidth, vh = video.videoHeight;
+  var scale = 0.6;
+  var rw = vw * 0.75 * scale, rh = vh * 0.45 * scale;
   canvas.width = rw; canvas.height = rh;
   canvas.getContext("2d").drawImage(video, (vw - vw*0.75)/2, (vh - vh*0.45)/2, vw*0.75, vh*0.45, 0, 0, rw, rh);
   return canvas.toDataURL("image/jpeg", 0.75).split(",")[1];
 }
 
 function captureFullFrame() {
-  const video = document.getElementById("video");
-  const canvas = document.getElementById("canvas");
+  var video = document.getElementById("video");
+  var canvas = document.getElementById("canvas");
   if (!video || video.readyState < 2) return null;
   canvas.width = video.videoWidth; canvas.height = video.videoHeight;
   canvas.getContext("2d").drawImage(video, 0, 0);
@@ -454,384 +462,382 @@ function captureFullFrame() {
 
 function startScanLoop() {
   scanning = false; lastScanTime = 0;
-  scanInterval = setInterval(async () => {
+  scanInterval = setInterval(function() {
     if (scanning) return;
-    const now = Date.now();
+    var now = Date.now();
     if (now - lastScanTime < 2000) return;
-    const b64 = captureFrame();
+    var b64 = captureFrame();
     if (!b64) return;
     scanning = true;
-    const status = document.getElementById("scan-status");
-    status.textContent = "🔍 Analyse en cours…";
-    try {
-      const result = await analyzeTicket(b64);
+    var status = document.getElementById("scan-status");
+    status.textContent = "Analyse en cours...";
+    analyzeTicket(b64).then(function(result) {
       if (result && result.found && result.name !== "Inconnu" && result.code !== "Inconnu") {
-        const isDuplicate = await dbCheckDuplicate(result.code);
-        if (isDuplicate) {
-          status.textContent = "⚠️ Commande déjà enregistrée !";
-          lastScanTime = now; scanning = false;
-          setTimeout(() => showStep1(), 3000);
-          return;
-        }
-        stopScanLoop();
-        // Supprimer bouton reprendre
-        const rb = document.getElementById("retake-btn"); if (rb) rb.remove();
-        const mergedImg = await mergeImages(commandPhotoData, result.name, result.code);
-        let imageUrl = mergedImg;
-        try {
-          const up = await uploadToCloudinary(mergedImg, "image/jpeg");
-          if (up) imageUrl = up;
-        } catch(e) {}
-        await dbInsert({ name: result.name, code: result.code, date: new Date().toISOString(), employee: staffName, image_base64: imageUrl, contested: false });
-        const clientInfo = await dbUpsertClient(result.name);
-        await sendTelegram(result.name, result.code, staffName, clientInfo.status === "suspect");
-        playBeep();
-        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-        showToast("✅ " + result.name + " — " + result.code);
-        showStep1();
+        return dbCheckDuplicate(result.code).then(function(isDuplicate) {
+          if (isDuplicate) {
+            status.textContent = "Commande deja enregistree !";
+            lastScanTime = now; scanning = false;
+            setTimeout(function() { showStep1(); }, 3000);
+            return;
+          }
+          stopScanLoop();
+          var rb = document.getElementById("retake-btn");
+          if (rb) rb.remove();
+          return mergeImages(commandPhotoData, result.name, result.code).then(function(mergedImg) {
+            return uploadToCloudinary(mergedImg, "image/jpeg").catch(function() { return mergedImg; }).then(function(imageUrl) {
+              return dbInsert({ name: result.name, code: result.code, date: new Date().toISOString(), employee: staffName, image_base64: imageUrl || mergedImg, contested: false })
+                .then(function() { return dbUpsertClient(result.name); })
+                .then(function(clientInfo) {
+                  sendTelegram(result.name, result.code, staffName, clientInfo.status === "suspect");
+                  playBeep();
+                  if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                  showToast(result.name + " - " + result.code + " enregistre !");
+                  showStep1();
+                });
+            });
+          });
+        });
       } else {
-        status.textContent = "⏳ Ticket non détecté…";
+        status.textContent = "Ticket non detecte...";
         lastScanTime = now;
+        scanning = false;
       }
-    } catch(e) {
-      status.textContent = "⚠️ Erreur — nouvelle tentative…";
+    }).catch(function() {
+      status.textContent = "Erreur - nouvelle tentative...";
       lastScanTime = now;
-    }
-    scanning = false;
+      scanning = false;
+    });
   }, 500);
 }
 
-async function analyzeTicket(b64) {
-  const r = await fetch("/api/analyze", {
+function analyzeTicket(b64) {
+  return fetch("/api/analyze", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ image: b64, mediaType: "image/jpeg" })
-  });
-  return r.json();
+  }).then(function(r) { return r.json(); });
 }
 
-async function uploadToCloudinary(base64Data, mediaType) {
-  const r = await fetch("/api/upload", {
+function uploadToCloudinary(base64Data, mediaType) {
+  return fetch("/api/upload", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ image: base64Data.split(",")[1], mediaType: mediaType || "image/jpeg" })
-  });
-  const data = await r.json();
-  return data.url || null;
+  }).then(function(r) { return r.json(); }).then(function(data) { return data.url || null; });
 }
 
-async function sendTelegram(name, code, employee, isSuspect) {
-  try {
-    const msg = (isSuspect ? "🔴 CLIENT SUSPECT !\n" : "✅ Nouvelle commande\n") +
-      "👤 " + name + "\n🔢 " + code + "\n👷 " + employee + "\n📅 " + formatDate(new Date().toISOString());
-    await fetch("/api/telegram", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: msg })
-    });
-  } catch(e) {}
+function sendTelegram(name, code, employee, isSuspect) {
+  var msg = (isSuspect ? "CLIENT SUSPECT !\n" : "Nouvelle commande\n") +
+    "Client: " + name + "\nCode: " + code + "\nEmploye: " + employee + "\nDate: " + formatDate(new Date().toISOString());
+  fetch("/api/telegram", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: msg })
+  }).catch(function() {});
 }
 
-// ===== ADMIN =====
-async function showAdmin() {
+function showAdmin() {
   document.getElementById("login-screen").style.display = "none";
   document.getElementById("admin-screen").style.display = "flex";
-  await loadOrders();
+  loadOrders();
 }
 
 function switchTab(tab) {
-  document.querySelectorAll(".tab").forEach((t, i) => {
-    t.classList.toggle("active", ["orders","contest","mycontests","suspects","stats"][i] === tab);
+  var tabNames = ["orders", "contest", "mycontests", "suspects", "stats"];
+  document.querySelectorAll(".tab").forEach(function(t, i) {
+    t.classList.toggle("active", tabNames[i] === tab);
   });
-  document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+  document.querySelectorAll(".tab-content").forEach(function(c) { c.classList.remove("active"); });
   document.getElementById("tab-" + tab).classList.add("active");
   if (tab === "suspects") renderSuspects();
   if (tab === "stats") renderStats();
   if (tab === "mycontests") renderMyContests();
 }
 
-async function loadOrders() {
-  try {
-    document.getElementById("admin-count").textContent = "Chargement…";
-    const data = await dbGetOrders();
+function loadOrders() {
+  document.getElementById("admin-count").textContent = "Chargement...";
+  dbGetOrders().then(function(data) {
     orders = Array.isArray(data) ? data : [];
-    updateStats(); renderOrders();
-  } catch(e) {
+    updateStats();
+    renderOrders();
+  }).catch(function(e) {
     document.getElementById("admin-count").textContent = "Erreur de chargement";
     console.error(e);
-  }
+  });
 }
 
 function updateStats() {
-  const today = new Date().toISOString().slice(0,10);
-  const suspectNames = new Set(orders.filter(o => orders.filter(x => x.name===o.name).length >= 3).map(o => o.name));
+  var today = new Date().toISOString().slice(0, 10);
+  var suspectNames = new Set();
+  orders.forEach(function(o) {
+    var cnt = orders.filter(function(x) { return x.name === o.name; }).length;
+    if (cnt >= 3) suspectNames.add(o.name);
+  });
   document.getElementById("stat-total").textContent = orders.length;
-  document.getElementById("stat-today").textContent = orders.filter(o => (o.date||"").startsWith(today)).length;
-  document.getElementById("stat-contested").textContent = orders.filter(o => o.contested).length;
+  document.getElementById("stat-today").textContent = orders.filter(function(o) { return (o.date||"").startsWith(today); }).length;
+  document.getElementById("stat-contested").textContent = orders.filter(function(o) { return o.contested; }).length;
   document.getElementById("stat-suspects").textContent = suspectNames.size;
   document.getElementById("admin-count").textContent = orders.length + " commande(s)";
 }
 
 function renderOrders() {
-  const q = document.getElementById("search-inp").value.toLowerCase();
-  const d = document.getElementById("date-inp").value;
-  const filtered = orders.filter(o => {
-    const ms = !q || (o.name||"").toLowerCase().includes(q) || (o.code||"").toLowerCase().includes(q);
-    const md = !d || (o.date||"").startsWith(d);
+  var q = document.getElementById("search-inp").value.toLowerCase();
+  var d = document.getElementById("date-inp").value;
+  var filtered = orders.filter(function(o) {
+    var ms = !q || (o.name||"").toLowerCase().indexOf(q) >= 0 || (o.code||"").toLowerCase().indexOf(q) >= 0;
+    var md = !d || (o.date||"").startsWith(d);
     return ms && md;
   });
-  const grid = document.getElementById("orders-grid");
+  var grid = document.getElementById("orders-grid");
   if (filtered.length === 0) {
-    grid.innerHTML = '<div class="empty"><div>📭</div><p>' + (orders.length === 0 ? "Aucune commande." : "Aucun résultat.") + '</p></div>';
+    grid.innerHTML = '<div class="empty"><div>📭</div><p>' + (orders.length === 0 ? "Aucune commande." : "Aucun resultat.") + '</p></div>';
     return;
   }
   grid.innerHTML = "";
-  filtered.forEach(o => {
-    const isSuspect = orders.filter(x => x.name===o.name).length >= 3;
-    const card = document.createElement("div");
+  filtered.forEach(function(o) {
+    var isSuspect = orders.filter(function(x) { return x.name === o.name; }).length >= 3;
+    var card = document.createElement("div");
     card.className = "order-card";
-    card.innerHTML = `
-      <div class="card-img">
-        ${o.image_base64 ? `<img src="${o.image_base64}" alt="commande" loading="lazy" />` : '<div class="no-img"><span style="font-size:24px">📷</span></div>'}
-        <span class="card-tag ${o.contested ? 'contested' : isSuspect ? 'suspect' : ''}">${o.contested ? '⚠️' : isSuspect ? '🔴' : '✅'}</span>
-      </div>
-      <div class="card-body">
-        <div><div class="card-name">${o.name||'—'}</div><div class="card-code">${o.code||'—'}</div></div>
-        <div class="card-meta"><span>📅 ${formatDate(o.date)}</span><span>👤 ${o.employee||'—'}</span></div>
-      </div>`;
-    card.onclick = () => openModal(o);
+    var tagClass = o.contested ? "contested" : (isSuspect ? "suspect" : "");
+    var tagText = o.contested ? "C" : (isSuspect ? "S" : "OK");
+    var imgHtml = o.image_base64
+      ? '<img src="' + o.image_base64 + '" alt="commande" loading="lazy" />'
+      : '<div class="no-img"><span style="font-size:24px">📷</span></div>';
+    card.innerHTML = '<div class="card-img">' + imgHtml + '<span class="card-tag ' + tagClass + '">' + tagText + '</span></div>'
+      + '<div class="card-body">'
+      + '<div><div class="card-name">' + (o.name||"—") + '</div><div class="card-code">' + (o.code||"—") + '</div></div>'
+      + '<div class="card-meta"><span>' + formatDate(o.date) + '</span><span>' + (o.employee||"—") + '</span></div>'
+      + '</div>';
+    card.onclick = function() { openModal(o); };
     grid.appendChild(card);
   });
 }
 
-function renderMyContests() {
-  const container = document.getElementById("mycontests-list");
-  const contested = orders.filter(o => o.contested);
-  if (!contested.length) {
-    container.innerHTML = '<div class="empty"><div>📋</div><p>Aucune contestation en cours</p></div>';
-    return;
-  }
-  const total = contested.reduce((s, o) => s + (parseFloat(o.montant) || 0), 0);
-  const accepted = contested.filter(o => o.statut_contestation === "acceptee").length;
-  const refused = contested.filter(o => o.statut_contestation === "refusee").length;
-  const pending = contested.filter(o => !o.statut_contestation || o.statut_contestation === "non_contestee" || o.statut_contestation === "en_attente").length;
-
-  let html = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:16px 0 20px">';
-  html += '<div class="stats-card"><div class="big" style="color:#06C167">' + accepted + '</div><div class="label">✅ Acceptées</div></div>';
-  html += '<div class="stats-card"><div class="big" style="color:#f59e0b">' + pending + '</div><div class="label">⏳ En attente</div></div>';
-  html += '<div class="stats-card"><div class="big" style="color:#ef4444">' + refused + '</div><div class="label">❌ Refusées</div></div>';
-  html += '</div>';
-  html += '<div style="background:rgba(6,193,103,0.1);border:1px solid rgba(6,193,103,0.3);border-radius:12px;padding:14px 16px;margin-bottom:16px;text-align:center">';
-  html += '<div style="font-size:13px;color:rgba(255,255,255,0.5)">💰 Total montant saisi</div>';
-  html += '<div style="font-size:28px;font-weight:800;color:#06C167">' + total.toFixed(2) + ' €</div></div>';
-
-  contested.forEach(o => {
-    const statut = o.statut_contestation || "en_attente";
-    const btnEnAttente = statut === "en_attente" || statut === "non_contestee" || !statut ? "rgba(245,158,11,0.3)" : "rgba(255,255,255,0.06)";
-    const colEnAttente = statut === "en_attente" || statut === "non_contestee" || !statut ? "#f59e0b" : "rgba(255,255,255,0.4)";
-    const btnAcceptee = statut === "acceptee" ? "rgba(6,193,103,0.3)" : "rgba(255,255,255,0.06)";
-    const colAcceptee = statut === "acceptee" ? "#06C167" : "rgba(255,255,255,0.4)";
-    const btnRefusee = statut === "refusee" ? "rgba(239,68,68,0.3)" : "rgba(255,255,255,0.06)";
-    const colRefusee = statut === "refusee" ? "#ef4444" : "rgba(255,255,255,0.4)";
-
-    html += '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;margin-bottom:10px">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">';
-    html += '<div><div style="font-weight:700;font-size:15px">' + (o.name||'—') + '</div>';
-    html += '<div style="font-family:monospace;color:#06C167;font-size:12px">' + (o.code||'—') + '</div>';
-    html += '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px">📅 ' + formatDate(o.date) + '</div></div>';
-    html += '<div><input type="number" placeholder="Montant €" value="' + (o.montant||'') + '" step="0.01" min="0"';
-    html += ' style="width:90px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:white;font-size:13px;text-align:right;outline:none"';
-    html += ' onchange="updateMontant(\'' + o.id + '\', this.value)" /></div></div>';
-    html += '<div style="display:flex;gap:8px">';
-    html += '<button onclick="updateStatut(\'' + o.id + '\', \'en_attente\')" style="flex:1;padding:7px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:600;background:' + btnEnAttente + ';color:' + colEnAttente + '">⏳ En attente</button>';
-    html += '<button onclick="updateStatut(\'' + o.id + '\', \'acceptee\')" style="flex:1;padding:7px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:600;background:' + btnAcceptee + ';color:' + colAcceptee + '">✅ Acceptée</button>';
-    html += '<button onclick="updateStatut(\'' + o.id + '\', \'refusee\')" style="flex:1;padding:7px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:600;background:' + btnRefusee + ';color:' + colRefusee + '">❌ Refusée</button>';
-    html += '</div></div>';
+function renderSuspects() {
+  var container = document.getElementById("suspects-list");
+  var counts = {};
+  orders.forEach(function(o) { counts[o.name] = (counts[o.name]||0) + 1; });
+  var suspects = Object.entries(counts).filter(function(e) { return e[1] >= 3; }).sort(function(a,b) { return b[1]-a[1]; });
+  if (!suspects.length) { container.innerHTML = '<div class="empty"><div>OK</div><p>Aucun suspect</p></div>'; return; }
+  var html = "";
+  suspects.forEach(function(e) {
+    html += '<div class="suspect-card"><div><div style="font-weight:700">' + e[0] + '</div><div style="font-size:12px;color:rgba(255,255,255,0.5)">' + e[1] + ' commandes</div></div><span style="background:#f59e0b;color:white;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700">' + e[1] + 'x</span></div>';
   });
-
   container.innerHTML = html;
 }
 
-async function updateStatut(id, statut) {
-  await dbUpdate(id, { statut_contestation: statut });
-  orders = orders.map(o => o.id==id ? {...o, statut_contestation: statut} : o);
-  renderMyContests();
-  showToast("✅ Statut mis à jour !");
-}
-
-async function updateMontant(id, montant) {
-  const val = parseFloat(montant) || 0;
-  await dbUpdate(id, { montant: val });
-  orders = orders.map(o => o.id==id ? {...o, montant: val} : o);
-  renderMyContests();
-} {
-  const container = document.getElementById("suspects-list");
-  const counts = {};
-  orders.forEach(o => { counts[o.name] = (counts[o.name]||0) + 1; });
-  const suspects = Object.entries(counts).filter(([,c]) => c >= 3).sort((a,b) => b[1]-a[1]);
-  if (!suspects.length) { container.innerHTML = '<div class="empty"><div>✅</div><p>Aucun client suspect</p></div>'; return; }
-  container.innerHTML = suspects.map(([name, cnt]) => `
-    <div class="suspect-card">
-      <div><div class="suspect-name">👤 ${name}</div><div class="suspect-info">${cnt} commandes</div></div>
-      <span class="suspect-badge">⚠️ ${cnt}x</span>
-    </div>`).join("");
-}
-
 function renderStats() {
-  const now = new Date();
-  const week = orders.filter(o => new Date(o.date) > new Date(now - 7*86400000)).length;
-  const month = orders.filter(o => new Date(o.date) > new Date(now - 30*86400000)).length;
-  const rate = orders.length ? Math.round(orders.filter(o => o.contested).length / orders.length * 100) : 0;
-  const empCount = {};
-  orders.forEach(o => { empCount[o.employee] = (empCount[o.employee]||0) + 1; });
-  const topEmp = Object.entries(empCount).sort((a,b) => b[1]-a[1])[0];
+  var now = new Date();
+  var week = orders.filter(function(o) { return new Date(o.date) > new Date(now - 7*86400000); }).length;
+  var month = orders.filter(function(o) { return new Date(o.date) > new Date(now - 30*86400000); }).length;
+  var rate = orders.length ? Math.round(orders.filter(function(o) { return o.contested; }).length / orders.length * 100) : 0;
+  var empCount = {};
+  orders.forEach(function(o) { empCount[o.employee] = (empCount[o.employee]||0)+1; });
+  var topEmp = Object.entries(empCount).sort(function(a,b) { return b[1]-a[1]; })[0];
   document.getElementById("stats-week").textContent = week;
   document.getElementById("stats-month").textContent = month;
   document.getElementById("stats-contest-rate").textContent = rate + "%";
   document.getElementById("stats-top-employee").textContent = topEmp ? topEmp[0] : "—";
 }
 
+function renderMyContests() {
+  var container = document.getElementById("mycontests-list");
+  var contested = orders.filter(function(o) { return o.contested; });
+  if (!contested.length) {
+    container.innerHTML = '<div class="empty"><div>📋</div><p>Aucune contestation</p></div>';
+    return;
+  }
+  var total = contested.reduce(function(s, o) { return s + (parseFloat(o.montant) || 0); }, 0);
+  var accepted = contested.filter(function(o) { return o.statut_contestation === "acceptee"; }).length;
+  var refused = contested.filter(function(o) { return o.statut_contestation === "refusee"; }).length;
+  var pending = contested.length - accepted - refused;
+
+  var html = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">';
+  html += '<div class="stats-card"><div class="big" style="color:#06C167">' + accepted + '</div><div class="label">Acceptees</div></div>';
+  html += '<div class="stats-card"><div class="big" style="color:#f59e0b">' + pending + '</div><div class="label">En attente</div></div>';
+  html += '<div class="stats-card"><div class="big" style="color:#ef4444">' + refused + '</div><div class="label">Refusees</div></div>';
+  html += '</div>';
+  html += '<div style="background:rgba(6,193,103,0.1);border:1px solid rgba(6,193,103,0.3);border-radius:12px;padding:14px;margin-bottom:16px;text-align:center">';
+  html += '<div style="font-size:13px;color:rgba(255,255,255,0.5)">Total montant</div>';
+  html += '<div style="font-size:28px;font-weight:800;color:#06C167">' + total.toFixed(2) + ' EUR</div></div>';
+
+  contested.forEach(function(o) {
+    var statut = o.statut_contestation || "en_attente";
+    html += '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;margin-bottom:10px">';
+    html += '<div style="display:flex;justify-content:space-between;margin-bottom:10px">';
+    html += '<div><div style="font-weight:700">' + (o.name||"—") + '</div>';
+    html += '<div style="font-family:monospace;color:#06C167;font-size:12px">' + (o.code||"—") + '</div>';
+    html += '<div style="font-size:11px;color:rgba(255,255,255,0.4)">' + formatDate(o.date) + '</div></div>';
+    html += '<input type="number" placeholder="Montant EUR" value="' + (o.montant||"") + '" step="0.01" min="0"';
+    html += ' style="width:90px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:white;font-size:13px;outline:none"';
+    html += ' onchange="updateMontant(\'' + o.id + '\', this.value)" /></div>';
+    html += '<div style="display:flex;gap:8px">';
+    html += '<button onclick="updateStatut(\'' + o.id + '\', \'en_attente\')" style="flex:1;padding:7px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:600;background:' + (statut==="en_attente"||!statut?"rgba(245,158,11,0.3)":"rgba(255,255,255,0.06)") + ';color:' + (statut==="en_attente"||!statut?"#f59e0b":"rgba(255,255,255,0.4)") + '">En attente</button>';
+    html += '<button onclick="updateStatut(\'' + o.id + '\', \'acceptee\')" style="flex:1;padding:7px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:600;background:' + (statut==="acceptee"?"rgba(6,193,103,0.3)":"rgba(255,255,255,0.06)") + ';color:' + (statut==="acceptee"?"#06C167":"rgba(255,255,255,0.4)") + '">Acceptee</button>';
+    html += '<button onclick="updateStatut(\'' + o.id + '\', \'refusee\')" style="flex:1;padding:7px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:600;background:' + (statut==="refusee"?"rgba(239,68,68,0.3)":"rgba(255,255,255,0.06)") + ';color:' + (statut==="refusee"?"#ef4444":"rgba(255,255,255,0.4)") + '">Refusee</button>';
+    html += '</div></div>';
+  });
+  container.innerHTML = html;
+}
+
+function updateStatut(id, statut) {
+  dbUpdate(id, { statut_contestation: statut }).then(function() {
+    orders = orders.map(function(o) { return o.id == id ? Object.assign({}, o, { statut_contestation: statut }) : o; });
+    renderMyContests();
+    showToast("Statut mis a jour !");
+  });
+}
+
+function updateMontant(id, montant) {
+  var val = parseFloat(montant) || 0;
+  dbUpdate(id, { montant: val }).then(function() {
+    orders = orders.map(function(o) { return o.id == id ? Object.assign({}, o, { montant: val }) : o; });
+    renderMyContests();
+  });
+}
+
 function analyzeContestList() {
-  const raw = document.getElementById("contest-list").value.trim();
+  var raw = document.getElementById("contest-list").value.trim();
   if (!raw) return;
-  const lines = raw.split("\n").filter(l => l.trim());
-  const result = document.getElementById("contest-result");
-
-  const found = [], notFound = [];
-
-  lines.forEach(line => {
-    const parts = line.split(/[-–—]/);
-    const name = parts[0]?.trim() || "";
-    const code = parts[parts.length-1]?.trim() || "";
-    const order = orders.find(o => o.code?.toLowerCase()===code.toLowerCase() || o.name?.toLowerCase()===name.toLowerCase());
-    if (order) found.push({ line, name, code, order });
-    else notFound.push({ line, name, code });
+  var lines = raw.split("\n").filter(function(l) { return l.trim(); });
+  var found = [], notFound = [];
+  lines.forEach(function(line) {
+    var parts = line.split(/[-\u2013\u2014]/);
+    var name = (parts[0]||"").trim();
+    var code = (parts[parts.length-1]||"").trim();
+    var order = orders.find(function(o) {
+      return (o.code||"").toLowerCase() === code.toLowerCase() || (o.name||"").toLowerCase() === name.toLowerCase();
+    });
+    if (order) found.push({ name: name, code: code, order: order });
+    else notFound.push({ name: name, code: code });
   });
 
-  result.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
-      <div>
-        <div style="color:#06C167;font-weight:700;font-size:14px;margin-bottom:10px">✅ Trouvées (${found.length})</div>
-        ${found.length === 0 ? '<div style="color:rgba(255,255,255,0.3);font-size:13px">Aucune commande trouvée</div>' : found.map(({name, code, order}) => {
-          const contestMsg = generateContestMsg(order);
-          const gmailUrl = "https://mail.google.com/mail/?view=cm&to=" + encodeURIComponent(UBER_EMAIL) + "&su=" + encodeURIComponent("Contestation — " + order.name + " / " + order.code) + "&body=" + encodeURIComponent(contestMsg);
-          return `<div class="contest-item found" style="flex-direction:column;align-items:flex-start;gap:8px">
-            <div class="contest-item-info">
-              <div class="contest-item-name">👤 ${order.name}</div>
-              <div class="contest-item-code">${order.code}</div>
-              <div class="contest-item-status" style="color:#06C167">📅 ${formatDate(order.date)}</div>
-            </div>
-            <div style="display:flex;gap:6px;width:100%">
-              <button onclick='openModal(${JSON.stringify(order).replace(/'/g,"&#39;")})' style="flex:1;background:rgba(6,193,103,0.2);border:1px solid rgba(6,193,103,0.3);color:#06C167;border-radius:8px;padding:6px;cursor:pointer;font-size:12px;font-weight:600">👁️ Voir</button>
-              <a href="${gmailUrl}" target="_blank" style="flex:1;background:rgba(6,193,103,0.2);border:1px solid rgba(6,193,103,0.3);color:#06C167;border-radius:8px;padding:6px;font-size:12px;font-weight:600;text-decoration:none;text-align:center">📧 Gmail</a>
-            </div>
-          </div>`;
-        }).join("")}
-      </div>
-      <div>
-        <div style="color:#ef4444;font-weight:700;font-size:14px;margin-bottom:10px">❌ Non trouvées (${notFound.length})</div>
-        ${notFound.length === 0 ? '<div style="color:rgba(255,255,255,0.3);font-size:13px">Toutes les commandes ont été trouvées !</div>' : notFound.map(({name, code}) => `
-          <div class="contest-item not-found" style="flex-direction:column;align-items:flex-start">
-            <div class="contest-item-name">👤 ${name || '—'}</div>
-            <div class="contest-item-code">${code}</div>
-            <div class="contest-item-status" style="color:#ef4444">Non scannée</div>
-          </div>`).join("")}
-      </div>
-    </div>`;
+  var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">';
+  html += '<div><div style="color:#06C167;font-weight:700;margin-bottom:10px">Trouvees (' + found.length + ')</div>';
+  if (!found.length) html += '<div style="color:rgba(255,255,255,0.3);font-size:13px">Aucune</div>';
+  found.forEach(function(item) {
+    var o = item.order;
+    var contestMsg = generateContestMsg(o);
+    var gmailUrl = "https://mail.google.com/mail/?view=cm&to=" + encodeURIComponent(UBER_EMAIL) + "&su=" + encodeURIComponent("Contestation - " + o.name + " / " + o.code) + "&body=" + encodeURIComponent(contestMsg);
+    html += '<div class="contest-item found" style="margin-bottom:10px">';
+    html += '<div style="font-weight:700">' + o.name + '</div>';
+    html += '<div style="font-family:monospace;color:#06C167;font-size:12px">' + o.code + '</div>';
+    html += '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:8px">' + formatDate(o.date) + '</div>';
+    html += '<div style="display:flex;gap:6px">';
+    html += '<button onclick="openModalById(\'' + o.id + '\')" style="flex:1;background:rgba(6,193,103,0.2);border:1px solid rgba(6,193,103,0.3);color:#06C167;border-radius:8px;padding:6px;cursor:pointer;font-size:12px;font-weight:600">Voir</button>';
+    html += '<a href="' + gmailUrl + '" target="_blank" style="flex:1;background:rgba(6,193,103,0.2);border:1px solid rgba(6,193,103,0.3);color:#06C167;border-radius:8px;padding:6px;font-size:12px;font-weight:600;text-decoration:none;text-align:center">Gmail</a>';
+    html += '</div></div>';
+  });
+  html += '</div>';
+
+  html += '<div><div style="color:#ef4444;font-weight:700;margin-bottom:10px">Non trouvees (' + notFound.length + ')</div>';
+  if (!notFound.length) html += '<div style="color:rgba(255,255,255,0.3);font-size:13px">Toutes trouvees !</div>';
+  notFound.forEach(function(item) {
+    html += '<div class="contest-item not-found" style="margin-bottom:10px">';
+    html += '<div style="font-weight:700">' + (item.name||"—") + '</div>';
+    html += '<div style="font-family:monospace;color:#ef4444;font-size:12px">' + (item.code||"—") + '</div>';
+    html += '<div style="font-size:11px;color:#ef4444">Non scannee</div>';
+    html += '</div>';
+  });
+  html += '</div></div>';
+
+  document.getElementById("contest-result").innerHTML = html;
+}
+
+function openModalById(id) {
+  var o = orders.find(function(x) { return x.id == id; });
+  if (o) openModal(o);
 }
 
 function generateContestMsg(o) {
-  const history = orders.filter(x => x.name===o.name);
-  const historyText = history.length > 1 ? "\n\n⚠️ HISTORIQUE :\nCe client a " + history.length + " commandes :\n" + history.map(x => "- " + formatDate(x.date) + " — " + x.code).join("\n") : "";
-  return `Objet : Contestation remboursement — ${o.name} / ${o.code}\n\nMadame, Monsieur,\n\nJe conteste le remboursement de la commande :\n• Client : ${o.name}\n• Code : ${o.code}\n• Date : ${formatDate(o.date)}\n• Pris en charge par : ${o.employee}\n\nNous disposons d'une photo attestant la bonne préparation.${historyText}\n\nCordialement,\nLa direction — Tonton Chami City`;
+  var history = orders.filter(function(x) { return x.name === o.name; });
+  var historyText = "";
+  if (history.length > 1) {
+    historyText = "\n\nHISTORIQUE CLIENT:\nCe client a " + history.length + " commandes:\n";
+    historyText += history.map(function(x) { return "- " + formatDate(x.date) + " - " + x.code; }).join("\n");
+  }
+  return "Contestation remboursement - " + o.name + " / " + o.code + "\n\nMadame, Monsieur,\n\nJe conteste le remboursement:\n- Client: " + o.name + "\n- Code: " + o.code + "\n- Date: " + formatDate(o.date) + "\n- Employe: " + o.employee + "\n\nNous avons une photo attestant la bonne preparation." + historyText + "\n\nCordialement,\nLa direction - Tonton Chami City";
 }
 
 function exportExcel() {
-  const headers = ["Nom","Code","Date","Employé","Contestée"];
-  const rows = orders.map(o => [o.name, o.code, formatDate(o.date), o.employee, o.contested?"Oui":"Non"]);
-  const csv = [headers,...rows].map(r => r.map(c => '"'+(c||"").replace(/"/g,'""')+'"').join(",")).join("\n");
-  const a = document.createElement("a");
+  var headers = ["Nom","Code","Date","Employe","Contestee"];
+  var rows = orders.map(function(o) { return [o.name, o.code, formatDate(o.date), o.employee, o.contested?"Oui":"Non"]; });
+  var csv = [headers].concat(rows).map(function(r) { return r.map(function(c) { return '"'+(c||"").replace(/"/g,'""')+'"'; }).join(","); }).join("\n");
+  var a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob(["\ufeff"+csv], {type:"text/csv;charset=utf-8;"}));
   a.download = "commandes_" + new Date().toLocaleDateString("fr-FR").replace(/\//g,"-") + ".csv";
   a.click();
-  showToast("✅ Export téléchargé !");
+  showToast("Export telecharge !");
 }
 
 function openModal(o) {
-  const root = document.getElementById("modal-root");
-  const contestMsg = o.contest_message || generateContestMsg(o);
-  const gmailUrl = "https://mail.google.com/mail/?view=cm&to=" + encodeURIComponent(UBER_EMAIL) + "&su=" + encodeURIComponent("Contestation — " + o.name + " / " + o.code) + "&body=" + encodeURIComponent(contestMsg);
-  const cnt = orders.filter(x => x.name===o.name).length;
-  root.innerHTML = `
-    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
-      <div class="modal">
-        <div class="modal-hdr">
-          <h3>Détail commande ${cnt>=3?'🔴':''}</h3>
-          <button class="btn-close" onclick="closeModal()">✕</button>
-        </div>
-        <div class="modal-body">
-          ${o.image_base64 ? `<img src="${o.image_base64}" style="width:100%;border-radius:12px;margin-bottom:14px;object-fit:contain;background:#111;max-height:240px" loading="lazy" />` : ''}
-          ${cnt>=3 ? `<div style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:10px 14px;margin-bottom:12px;color:#f59e0b;font-size:13px">⚠️ Client suspect — ${cnt} commandes</div>` : ''}
-          <div class="detail-row"><span class="icon">👤</span><div><div class="lbl">Nom client</div><div class="val">${o.name||'—'}</div></div></div>
-          <div class="detail-row"><span class="icon">🔢</span><div><div class="lbl">Code</div><div class="val" style="font-family:monospace;color:#06C167">${o.code||'—'}</div></div></div>
-          <div class="detail-row"><span class="icon">📅</span><div><div class="lbl">Date & heure</div><div class="val">${formatDate(o.date)}</div></div></div>
-          <div class="detail-row"><span class="icon">🧑‍💼</span><div><div class="lbl">Scanné par</div><div class="val">${o.employee||'—'}</div></div></div>
-          <button class="btn-action" style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.3);margin-top:12px" onclick="deleteOrder('${o.id}')">🗑️ Supprimer</button>
-          <button class="btn-action" style="background:rgba(255,255,255,0.08);color:white;border:1px solid rgba(255,255,255,0.1)" onclick="downloadImage('${o.image_base64}','${o.name} - ${o.code}')">📥 Télécharger la photo</button>
-          <button class="btn-action" style="background:rgba(6,193,103,0.1);color:#06C167;border:1px solid rgba(6,193,103,0.3)" onclick="copyPhoto('${o.image_base64}')">📷 Copier la photo (Ctrl+V dans Gmail)</button>
-          <div class="contest-section">
-            <h4>⚠️ Contester ce remboursement</h4>
-            <p>Message pré-rempli avec historique client.</p>
-            <textarea id="contest-ta">${contestMsg}</textarea>
-            <button class="btn-action" style="background:rgba(6,193,103,0.15);color:#06C167;border:1px solid rgba(6,193,103,0.3)" onclick="copyContest('${o.id}')">📋 Copier le message</button>
-            <a href="${gmailUrl}" target="_blank" style="display:block;text-align:center;background:linear-gradient(135deg,#06C167,#04a855);color:white;border-radius:10px;padding:11px 16px;font-size:14px;font-weight:600;text-decoration:none;margin-top:8px">📧 Envoyer à Uber via Gmail</a>
-          </div>
-        </div>
-      </div>
-    </div>`;
+  var root = document.getElementById("modal-root");
+  var contestMsg = o.contest_message || generateContestMsg(o);
+  var gmailUrl = "https://mail.google.com/mail/?view=cm&to=" + encodeURIComponent(UBER_EMAIL) + "&su=" + encodeURIComponent("Contestation - " + o.name + " / " + o.code) + "&body=" + encodeURIComponent(contestMsg);
+  var cnt = orders.filter(function(x) { return x.name === o.name; }).length;
+  var html = '<div class="modal-overlay" onclick="if(event.target===this)closeModal()">';
+  html += '<div class="modal"><div class="modal-hdr"><h3>Detail commande ' + (cnt>=3?"SUSPECT":"") + '</h3><button class="btn-close" onclick="closeModal()">X</button></div>';
+  html += '<div class="modal-body">';
+  if (o.image_base64) html += '<img src="' + o.image_base64 + '" style="width:100%;border-radius:12px;margin-bottom:14px;object-fit:contain;background:#111;max-height:240px" loading="lazy" />';
+  if (cnt>=3) html += '<div style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:10px 14px;margin-bottom:12px;color:#f59e0b;font-size:13px">Client suspect - ' + cnt + ' commandes</div>';
+  html += '<div class="detail-row"><span class="icon">👤</span><div><div class="lbl">Nom</div><div class="val">' + (o.name||"—") + '</div></div></div>';
+  html += '<div class="detail-row"><span class="icon">🔢</span><div><div class="lbl">Code</div><div class="val" style="font-family:monospace;color:#06C167">' + (o.code||"—") + '</div></div></div>';
+  html += '<div class="detail-row"><span class="icon">📅</span><div><div class="lbl">Date</div><div class="val">' + formatDate(o.date) + '</div></div></div>';
+  html += '<div class="detail-row"><span class="icon">👷</span><div><div class="lbl">Employe</div><div class="val">' + (o.employee||"—") + '</div></div></div>';
+  html += '<button class="btn-action" style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.3);margin-top:12px" onclick="deleteOrder(\'' + o.id + '\')">Supprimer</button>';
+  html += '<button class="btn-action" style="background:rgba(255,255,255,0.08);color:white;border:1px solid rgba(255,255,255,0.1)" onclick="downloadImage(\'' + o.image_base64 + '\',\'' + o.name + ' - ' + o.code + '\')">Telecharger la photo</button>';
+  html += '<button class="btn-action" style="background:rgba(6,193,103,0.1);color:#06C167;border:1px solid rgba(6,193,103,0.3)" onclick="copyPhoto(\'' + o.image_base64 + '\')">Copier la photo (Ctrl+V dans Gmail)</button>';
+  html += '<div class="contest-section"><h4>Contester ce remboursement</h4><p>Message pre-rempli avec historique.</p>';
+  html += '<textarea id="contest-ta">' + contestMsg + '</textarea>';
+  html += '<button class="btn-action" style="background:rgba(6,193,103,0.15);color:#06C167;border:1px solid rgba(6,193,103,0.3)" onclick="copyContest(\'' + o.id + '\')">Copier le message</button>';
+  html += '<a href="' + gmailUrl + '" target="_blank" style="display:block;text-align:center;background:linear-gradient(135deg,#06C167,#04a855);color:white;border-radius:10px;padding:11px 16px;font-size:14px;font-weight:600;text-decoration:none;margin-top:8px">Envoyer a Uber via Gmail</a>';
+  html += '</div></div></div></div>';
+  root.innerHTML = html;
 }
 
-async function copyContest(id) {
-  const msg = document.getElementById("contest-ta").value;
-  try { await navigator.clipboard.writeText(msg); } catch(e) {}
-  await dbUpdate(id, { contested: true, contest_message: msg });
-  orders = orders.map(o => o.id==id ? {...o, contested:true, contest_message:msg} : o);
-  updateStats(); renderOrders();
-  showToast("✅ Message copié !");
-  closeModal();
+function copyContest(id) {
+  var msg = document.getElementById("contest-ta").value;
+  navigator.clipboard.writeText(msg).catch(function() {});
+  dbUpdate(id, { contested: true, contest_message: msg }).then(function() {
+    orders = orders.map(function(o) { return o.id == id ? Object.assign({}, o, { contested: true, contest_message: msg }) : o; });
+    updateStats(); renderOrders();
+    showToast("Message copie !");
+    closeModal();
+  });
 }
 
-async function deleteOrder(id) {
+function deleteOrder(id) {
   if (!confirm("Supprimer cette commande ?")) return;
-  await dbDelete(id);
-  orders = orders.filter(o => o.id!=id);
-  updateStats(); renderOrders(); closeModal();
-  showToast("✅ Supprimée.");
+  dbDelete(id).then(function() {
+    orders = orders.filter(function(o) { return o.id != id; });
+    updateStats(); renderOrders(); closeModal();
+    showToast("Supprimee.");
+  });
 }
 
-async function deleteAllConfirm() {
+function deleteAllConfirm() {
   if (!confirm("Supprimer TOUTES les commandes ?")) return;
-  for (const o of orders) await dbDelete(o.id);
-  orders = []; updateStats(); renderOrders();
-  showToast("✅ Toutes supprimées.");
+  Promise.all(orders.map(function(o) { return dbDelete(o.id); })).then(function() {
+    orders = []; updateStats(); renderOrders();
+    showToast("Toutes supprimees.");
+  });
 }
 
 function downloadImage(src, filename) {
-  const a = document.createElement("a");
+  var a = document.createElement("a");
   a.href = src;
   a.download = (filename||"commande").replace(/[^a-zA-Z0-9 \-]/g,"") + ".jpg";
   a.click();
 }
 
-async function copyPhoto(src) {
-  try {
-    const res = await fetch(src);
-    const blob = await res.blob();
-    await navigator.clipboard.write([new ClipboardItem({"image/jpeg": blob})]);
-    showToast("✅ Photo copiée ! Collez avec Ctrl+V dans Gmail");
-  } catch(e) {
-    showToast("❌ Copie non supportée sur ce navigateur", true);
-  }
+function copyPhoto(src) {
+  fetch(src).then(function(r) { return r.blob(); }).then(function(blob) {
+    return navigator.clipboard.write([new ClipboardItem({"image/jpeg": blob})]);
+  }).then(function() {
+    showToast("Photo copiee ! Collez avec Ctrl+V dans Gmail");
+  }).catch(function() {
+    showToast("Copie non supportee sur ce navigateur", true);
+  });
 }
 
 function closeModal() { document.getElementById("modal-root").innerHTML = ""; }
