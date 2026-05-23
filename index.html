@@ -751,6 +751,7 @@ function openModal(o) {
             <p>Message pré-rempli avec historique client.</p>
             <textarea id="contest-ta">${contestMsg}</textarea>
             <button class="btn-action" style="background:rgba(6,193,103,0.15);color:#06C167;border:1px solid rgba(6,193,103,0.3)" onclick="copyContest('${o.id}')">📋 Copier le message</button>
+            <button class="btn-action" style="background:rgba(6,193,103,0.15);color:#06C167;border:1px solid rgba(6,193,103,0.3);margin-top:8px" onclick="copyPhoto('${o.image_base64}')">📷 Copier la photo (puis Ctrl+V dans Gmail)</button>
             <a href="${gmailUrl}" target="_blank" style="display:block;text-align:center;background:linear-gradient(135deg,#06C167,#04a855);color:white;border:none;border-radius:10px;padding:11px 16px;cursor:pointer;font-size:14px;font-weight:600;text-decoration:none;margin-top:8px">📧 Envoyer à Uber via Gmail</a>
           </div>
         </div>
@@ -788,6 +789,17 @@ function downloadImage(src, filename) {
   a.href = src;
   a.download = filename.replace(/[^a-zA-Z0-9 \-]/g,"") + ".jpg";
   a.click();
+}
+
+async function copyPhoto(src) {
+  try {
+    const res = await fetch(src);
+    const blob = await res.blob();
+    await navigator.clipboard.write([new ClipboardItem({ "image/jpeg": blob })]);
+    showToast("✅ Photo copiée ! Collez avec Ctrl+V dans Gmail");
+  } catch(e) {
+    showToast("❌ Copie non supportée sur ce navigateur", true);
+  }
 }
 
 function closeModal() { document.getElementById("modal-root").innerHTML = ""; }
