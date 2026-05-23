@@ -287,7 +287,7 @@ async function dbInsert(order) {
   const r = await fetch(SUPABASE_URL + "/rest/v1/orders", { method: "POST", headers: { ...dbH, "Prefer": "return=representation" }, body: JSON.stringify(order) });
   return r.json();
 }
-async function dbGetOrders() {
+let currentPage = 0; const PAGE_SIZE = 20;  async function dbGetOrders(page = 0) {   const from = page * PAGE_SIZE;   const to = from + PAGE_SIZE - 1;   const r = await fetch(SUPABASE_URL + "/rest/v1/orders?order=date.desc&select=id,name,code,date,employee,contested,contest_message,image_base64&limit=" + PAGE_SIZE + "&offset=" + from, {      headers: { ...dbH, "Range": from + "-" + to, "Range-Unit": "items", "Prefer": "count=exact" }   });   return r.json(); } {
   const r = await fetch(SUPABASE_URL + "/rest/v1/orders?order=date.desc&select=id,name,code,date,employee,contested,contest_message,image_base64", { headers: dbH });
   return r.json();
 }
@@ -556,7 +556,7 @@ async function loadOrders() {
   try {
     document.getElementById("admin-count").textContent = "Chargement…";
     await autoCleanOldOrders();
-    const data = await dbGetOrders();
+    const data = await dbGetOrders(currentPage);
     orders = Array.isArray(data) ? data : [];
     updateStats(); renderOrders();
   } catch(e) {
