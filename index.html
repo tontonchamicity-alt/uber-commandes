@@ -288,7 +288,7 @@ async function dbInsert(order) {
   return r.json();
 }
 async function dbGetOrders() {
-  const r = await fetch(SUPABASE_URL + "/rest/v1/orders?order=date.desc&select=id,name,code,date,employee,contested,contest_message,image_base64", { headers: dbH });
+  const r = await fetch(SUPABASE_URL + "/const r = await fetch(SUPABASE_URL + "/rest/v1/orders?order=date.desc&select=id,name,code,date,employee,contested,contest_message", { headers: dbH });id,name,code,date,employee,contested,contest_message,image_base64", { headers: dbH });
   return r.json();
 }
 async function dbDelete(id) {
