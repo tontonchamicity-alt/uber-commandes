@@ -207,7 +207,11 @@
       <input id="date-inp" type="date" oninput="renderOrders()" />
     </div>
     <div class="grid" id="orders-grid"></div>
-  </div>
+    <div style="display:flex;justify-content:center;align-items:center;gap:12px;padding:16px 20px 24px">
+      <button onclick="changePage(-1)" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:white;border-radius:10px;padding:10px 20px;cursor:pointer;font-size:14px">← Précédent</button>
+      <span id="page-info" style="color:rgba(255,255,255,0.4);font-size:14px">Page 1</span>
+      <button onclick="changePage(1)" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:white;border-radius:10px;padding:10px 20px;cursor:pointer;font-size:14px">Suivant →</button>
+    </div>
 
   <!-- TAB: CONTESTATIONS -->
   <div id="tab-contest" class="tab-content">
@@ -287,7 +291,7 @@ async function dbInsert(order) {
   const r = await fetch(SUPABASE_URL + "/rest/v1/orders", { method: "POST", headers: { ...dbH, "Prefer": "return=representation" }, body: JSON.stringify(order) });
   return r.json();
 }
-let currentPage = 0; const PAGE_SIZE = 20;  async function dbGetOrders(page = 0) {   const from = page * PAGE_SIZE;   const to = from + PAGE_SIZE - 1;   const r = await fetch(SUPABASE_URL + "/rest/v1/orders?order=date.desc&select=id,name,code,date,employee,contested,contest_message,image_base64&limit=" + PAGE_SIZE + "&offset=" + from, {      headers: { ...dbH, "Range": from + "-" + to, "Range-Unit": "items", "Prefer": "count=exact" }   });   return r.json(); } {
+async function dbGetOrders() {
   const r = await fetch(SUPABASE_URL + "/rest/v1/orders?order=date.desc&select=id,name,code,date,employee,contested,contest_message,image_base64", { headers: dbH });
   return r.json();
 }
@@ -556,8 +560,9 @@ async function loadOrders() {
   try {
     document.getElementById("admin-count").textContent = "Chargement…";
     await autoCleanOldOrders();
-    const data = await dbGetOrders(currentPage);
+    const data = await dbGetOrders();
     orders = Array.isArray(data) ? data : [];
+    document.getElementById("page-info").textContent = "Page " + (currentPage + 1) + " / " + Math.max(1, Math.ceil(totalOrders / PAGE_SIZE));
     updateStats(); renderOrders();
   } catch(e) {
     document.getElementById("admin-count").textContent = "Erreur";
