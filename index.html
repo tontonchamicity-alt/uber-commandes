@@ -474,12 +474,12 @@ function startScanLoop() {
     analyzeTicket(b64).then(function(result) {
       if (result && result.found && result.name !== "Inconnu" && result.code !== "Inconnu") {
         return dbCheckDuplicate(result.code).then(function(isDuplicate) {
-          if (isDuplicate) {
-            status.textContent = "Commande deja enregistree !";
-            lastScanTime = now; scanning = false;
-            setTimeout(function() { showStep1(); }, 3000);
-            return;
-          }
+              if (isDuplicate) {
+                status.textContent = "Commande deja enregistree !";
+                lastScanTime = now; scanning = false;
+                setTimeout(function() { showStep1(); }, 3000);
+                return;
+              }
           stopScanLoop();
           var rb = document.getElementById("retake-btn");
           if (rb) rb.remove();
