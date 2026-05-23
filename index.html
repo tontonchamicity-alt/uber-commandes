@@ -207,11 +207,7 @@
       <input id="date-inp" type="date" oninput="renderOrders()" />
     </div>
     <div class="grid" id="orders-grid"></div>
-    <div style="display:flex;justify-content:center;align-items:center;gap:12px;padding:16px 20px 24px">
-      <button onclick="changePage(-1)" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:white;border-radius:10px;padding:10px 20px;cursor:pointer;font-size:14px">← Précédent</button>
-      <span id="page-info" style="color:rgba(255,255,255,0.4);font-size:14px">Page 1</span>
-      <button onclick="changePage(1)" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:white;border-radius:10px;padding:10px 20px;cursor:pointer;font-size:14px">Suivant →</button>
-    </div>
+  </div>
 
   <!-- TAB: CONTESTATIONS -->
   <div id="tab-contest" class="tab-content">
@@ -562,7 +558,6 @@ async function loadOrders() {
     await autoCleanOldOrders();
     const data = await dbGetOrders();
     orders = Array.isArray(data) ? data : [];
-    document.getElementById("page-info").textContent = "Page " + (currentPage + 1) + " / " + Math.max(1, Math.ceil(totalOrders / PAGE_SIZE));
     updateStats(); renderOrders();
   } catch(e) {
     document.getElementById("admin-count").textContent = "Erreur";
