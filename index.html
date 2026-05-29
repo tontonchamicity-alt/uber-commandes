@@ -700,48 +700,56 @@ function analyzeContestList() {
   var raw = document.getElementById("contest-list").value.trim();
   if (!raw) return;
   var lines = raw.split("\n").filter(function(l) { return l.trim(); });
-  var found = [], notFound = [];
-  lines.forEach(function(line) {
+  document.getElementById("contest-result").innerHTML = '<div style="color:rgba(255,255,255,0.5);text-align:center;padding:20px">Recherche en cours...</div>';
+
+  // Recherche dans TOUTE la base Supabase pour chaque ligne
+  var promises = lines.map(function(line) {
     var parts = line.split(/[-\u2013\u2014]/);
     var name = (parts[0]||"").trim();
     var code = (parts[parts.length-1]||"").trim();
-    var order = orders.find(function(o) {
-      return (o.code||"").toLowerCase() === code.toLowerCase() || (o.name||"").toLowerCase() === name.toLowerCase();
+    return fetch(SUPABASE_URL + "/rest/v1/orders?or=(code.eq." + encodeURIComponent(code) + ",name.ilike." + encodeURIComponent("*" + name + "*") + ")&select=id,name,code,date,employee,image_base64,contested,contest_message&limit=1", { headers: dbH })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var order = Array.isArray(data) && data.length > 0 ? data[0] : null;
+        return { line: line, name: name, code: code, order: order };
+      });
+  });
+
+  Promise.all(promises).then(function(results) {
+    var found = results.filter(function(r) { return r.order; });
+    var notFound = results.filter(function(r) { return !r.order; });
+
+    var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">';
+    html += '<div><div style="color:#06C167;font-weight:700;margin-bottom:10px">Trouvees (' + found.length + ')</div>';
+    if (!found.length) html += '<div style="color:rgba(255,255,255,0.3);font-size:13px">Aucune</div>';
+    found.forEach(function(item) {
+      var o = item.order;
+      var contestMsg = generateContestMsg(o);
+      var gmailUrl = "https://mail.google.com/mail/?view=cm&to=" + encodeURIComponent(UBER_EMAIL) + "&su=" + encodeURIComponent("Contestation - " + o.name + " / " + o.code) + "&body=" + encodeURIComponent(contestMsg);
+      html += '<div class="contest-item found" style="margin-bottom:10px">';
+      html += '<div style="font-weight:700">' + o.name + '</div>';
+      html += '<div style="font-family:monospace;color:#06C167;font-size:12px">' + o.code + '</div>';
+      html += '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:8px">' + formatDate(o.date) + '</div>';
+      html += '<div style="display:flex;gap:6px">';
+      html += '<button onclick="openModalById(\'' + o.id + '\')" style="flex:1;background:rgba(6,193,103,0.2);border:1px solid rgba(6,193,103,0.3);color:#06C167;border-radius:8px;padding:6px;cursor:pointer;font-size:12px;font-weight:600">Voir</button>';
+      html += '<a href="' + gmailUrl + '" target="_blank" style="flex:1;background:rgba(6,193,103,0.2);border:1px solid rgba(6,193,103,0.3);color:#06C167;border-radius:8px;padding:6px;font-size:12px;font-weight:600;text-decoration:none;text-align:center">Gmail</a>';
+      html += '</div></div>';
     });
-    if (order) found.push({ name: name, code: code, order: order });
-    else notFound.push({ name: name, code: code });
-  });
-
-  var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">';
-  html += '<div><div style="color:#06C167;font-weight:700;margin-bottom:10px">Trouvees (' + found.length + ')</div>';
-  if (!found.length) html += '<div style="color:rgba(255,255,255,0.3);font-size:13px">Aucune</div>';
-  found.forEach(function(item) {
-    var o = item.order;
-    var contestMsg = generateContestMsg(o);
-    var gmailUrl = "https://mail.google.com/mail/?view=cm&to=" + encodeURIComponent(UBER_EMAIL) + "&su=" + encodeURIComponent("Contestation - " + o.name + " / " + o.code) + "&body=" + encodeURIComponent(contestMsg);
-    html += '<div class="contest-item found" style="margin-bottom:10px">';
-    html += '<div style="font-weight:700">' + o.name + '</div>';
-    html += '<div style="font-family:monospace;color:#06C167;font-size:12px">' + o.code + '</div>';
-    html += '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:8px">' + formatDate(o.date) + '</div>';
-    html += '<div style="display:flex;gap:6px">';
-    html += '<button onclick="openModalById(\'' + o.id + '\')" style="flex:1;background:rgba(6,193,103,0.2);border:1px solid rgba(6,193,103,0.3);color:#06C167;border-radius:8px;padding:6px;cursor:pointer;font-size:12px;font-weight:600">Voir</button>';
-    html += '<a href="' + gmailUrl + '" target="_blank" style="flex:1;background:rgba(6,193,103,0.2);border:1px solid rgba(6,193,103,0.3);color:#06C167;border-radius:8px;padding:6px;font-size:12px;font-weight:600;text-decoration:none;text-align:center">Gmail</a>';
-    html += '</div></div>';
-  });
-  html += '</div>';
-
-  html += '<div><div style="color:#ef4444;font-weight:700;margin-bottom:10px">Non trouvees (' + notFound.length + ')</div>';
-  if (!notFound.length) html += '<div style="color:rgba(255,255,255,0.3);font-size:13px">Toutes trouvees !</div>';
-  notFound.forEach(function(item) {
-    html += '<div class="contest-item not-found" style="margin-bottom:10px">';
-    html += '<div style="font-weight:700">' + (item.name||"—") + '</div>';
-    html += '<div style="font-family:monospace;color:#ef4444;font-size:12px">' + (item.code||"—") + '</div>';
-    html += '<div style="font-size:11px;color:#ef4444">Non scannee</div>';
     html += '</div>';
-  });
-  html += '</div></div>';
 
-  document.getElementById("contest-result").innerHTML = html;
+    html += '<div><div style="color:#ef4444;font-weight:700;margin-bottom:10px">Non trouvees (' + notFound.length + ')</div>';
+    if (!notFound.length) html += '<div style="color:rgba(255,255,255,0.3);font-size:13px">Toutes trouvees !</div>';
+    notFound.forEach(function(item) {
+      html += '<div class="contest-item not-found" style="margin-bottom:10px">';
+      html += '<div style="font-weight:700">' + (item.name||"—") + '</div>';
+      html += '<div style="font-family:monospace;color:#ef4444;font-size:12px">' + (item.code||"—") + '</div>';
+      html += '<div style="font-size:11px;color:#ef4444">Non scannee</div>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+
+    document.getElementById("contest-result").innerHTML = html;
+  });
 }
 
 function openModalById(id) {
