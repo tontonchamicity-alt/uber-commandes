@@ -696,6 +696,8 @@ function updateMontant(id, montant) {
   });
 }
 
+var contestFoundOrders = {};
+
 function analyzeContestList() {
   var raw = document.getElementById("contest-list").value.trim();
   if (!raw) return;
@@ -716,8 +718,10 @@ function analyzeContestList() {
   });
 
   Promise.all(promises).then(function(results) {
+    contestFoundOrders = {};
     var found = results.filter(function(r) { return r.order; });
     var notFound = results.filter(function(r) { return !r.order; });
+    found.forEach(function(item) { contestFoundOrders[item.order.id] = item.order; });
 
     var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">';
     html += '<div><div style="color:#06C167;font-weight:700;margin-bottom:10px">Trouvees (' + found.length + ')</div>';
@@ -753,7 +757,7 @@ function analyzeContestList() {
 }
 
 function openModalById(id) {
-  var o = orders.find(function(x) { return x.id == id; });
+  var o = contestFoundOrders[id] || orders.find(function(x) { return x.id == id; });
   if (o) openModal(o);
 }
 
