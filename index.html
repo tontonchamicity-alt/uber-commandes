@@ -758,7 +758,13 @@ function analyzeContestList() {
 
 function openModalById(id) {
   var o = contestFoundOrders[id] || orders.find(function(x) { return x.id == id; });
-  if (o) openModal(o);
+  if (o) {
+    // Ajouter dans orders si pas déjà présent
+    if (!orders.find(function(x) { return x.id == o.id; })) {
+      orders.push(o);
+    }
+    openModal(o);
+  }
 }
 
 function generateContestMsg(o) {
